@@ -45,6 +45,18 @@ class PluginTest extends TestCase {
 		$this->assertSame( \CheckoutFieldKit\VERSION, $data['version'] );
 	}
 
+	public function test_readme_agrees_with_the_plugin_header() {
+		$fields = array(
+			'stable'       => 'Stable tag',
+			'requires_wp'  => 'Requires at least',
+			'requires_php' => 'Requires PHP',
+		);
+		$readme = get_file_data( dirname( CFK_TESTS_PLUGIN_FILE ) . '/readme.txt', $fields );
+		$header = get_file_data( CFK_TESTS_PLUGIN_FILE, array_merge( $fields, array( 'stable' => 'Version' ) ) );
+
+		$this->assertSame( $header, $readme );
+	}
+
 	public function test_the_plugin_is_booted_when_woocommerce_is_active() {
 		$this->assertTrue( Plugin::instance()->is_booted() );
 	}

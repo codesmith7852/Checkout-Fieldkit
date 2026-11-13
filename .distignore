@@ -1,0 +1,49 @@
+# Files and folders left out of the release zip.
+# Read by the zip build command and by wordpress.org deploy tooling (10up/action-wordpress-plugin-deploy).
+# Anything not listed here ships in the zip.
+
+# Project docs (kept out on purpose)
+/GLOSSARY.md
+/README.md
+/docs
+
+# Version control and CI
+/.git
+/.github
+/.gitignore
+/.gitattributes
+/.distignore
+
+# Dependencies and build tooling
+/node_modules
+/vendor
+/package.json
+/package-lock.json
+/composer.json
+/composer.lock
+/tsconfig.json
+/webpack.config.js
+/.wp-env.json
+/.wp-env.override.json
+/bin
+/dist
+
+# Tests and quality tooling
+/tests
+/phpunit.xml
+/phpunit.xml.dist
+/.phpunit.result.cache
+/phpcs.xml
+/phpcs.xml.dist
+/jest.config.js
+/.eslintrc.js
+/.eslintrc.json
+/.prettierrc
+/.prettierrc.js
+/.stylelintrc.json
+/.editorconfig
+
+# Local and OS files
+.DS_Store
+Thumbs.db
+*.log

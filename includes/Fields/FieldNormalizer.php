@@ -129,6 +129,63 @@ final class FieldNormalizer {
 	}
 
 	/**
+	 * Brings the built-in fields of a field set in line with what WooCommerce
+	 * defines now, which changes with its settings (for example when the phone
+	 * field is hidden) and with other plugins. Fields marked built-in that
+	 * WooCommerce no longer has are left out; built-in fields that are missing
+	 * are put back in their section, after the built-in field that comes
+	 * before them by default. Custom fields are left as they are.
+	 *
+	 * @param string                           $checkout_type CheckoutType::CLASSIC or CheckoutType::BLOCK.
+	 * @param array<string, array<int, mixed>> $sections      Fields keyed by section name, as given.
+	 * @return array<string, array<int, mixed>>
+	 */
+	public function reconcile_built_ins( string $checkout_type, array $sections ): array {
+		if ( null === $this->defaults ) {
+			return $sections;
+		}
+
+		$built_ins = $this->defaults->names( $checkout_type );
+		$present   = array();
+		foreach ( $sections as $section => $fields ) {
+			if ( ! is_array( $fields ) ) {
+				continue;
+			}
+			$kept = array();
+			foreach ( $fields as $field ) {
+				$name = is_array( $field ) && isset( $field['name'] ) && is_scalar( $field['name'] ) ? trim( (string) $field['name'] ) : '';
+				if ( is_array( $field ) && ! empty( $field['builtIn'] ) && ! in_array( $name, $built_ins, true ) ) {
+					continue;
+				}
+				$present[ $name ] = true;
+				$kept[]           = $field;
+			}
+			$sections[ $section ] = $kept;
+		}
+
+		foreach ( $this->defaults->field_set( $checkout_type )['sections'] as $section => $defaults ) {
+			$fields   = isset( $sections[ $section ] ) && is_array( $sections[ $section ] ) ? array_values( $sections[ $section ] ) : array();
+			$previous = array();
+			foreach ( $defaults as $default ) {
+				if ( ! isset( $present[ $default['name'] ] ) ) {
+					$position = 0;
+					foreach ( $fields as $index => $field ) {
+						if ( is_array( $field ) && isset( $field['name'] ) && in_array( $field['name'], $previous, true ) ) {
+							$position = $index + 1;
+						}
+					}
+					array_splice( $fields, $position, 0, array( $default ) );
+					$present[ $default['name'] ] = true;
+				}
+				$previous[] = $default['name'];
+			}
+			$sections[ $section ] = $fields;
+		}
+
+		return $sections;
+	}
+
+	/**
 	 * Leaves out the keys of a normalised field whose value equals the key's
 	 * default, for lean storage. normalize() restores them.
 	 *

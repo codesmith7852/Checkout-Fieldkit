@@ -28,7 +28,7 @@ All the fields configured for one checkout type. A store has exactly two field s
 _Avoid_: form, field group, layout
 
 **Section**:
-A named group of fields inside a field set that WooCommerce renders together. Classic checkout has Billing, Shipping and Additional; Block checkout has Contact, Address, Order and Additional Information.
+A named group of fields inside a field set that WooCommerce renders together. Classic checkout has Billing, Shipping and Additional; Block checkout has Contact, Address and Additional.
 _Avoid_: tab, area, fieldset
 
 **Field**:

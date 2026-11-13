@@ -17,7 +17,8 @@
     "lint:css": "wp-scripts lint-style",
     "lint:types": "tsc --noEmit",
     "format": "wp-scripts format",
-    "zip": "npm run build && node bin/zip.js"
+    "zip": "npm run build && node bin/zip.js",
+    "plugin-check": "npm run zip && node bin/plugin-check.js"
   },
   "devDependencies": {
     "@babel/core": "^7.29.13",

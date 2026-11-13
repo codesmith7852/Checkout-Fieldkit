@@ -82,6 +82,23 @@ if ( '1' !== getenv( 'WP_TESTS_SKIP_INSTALL' ) ) {
 require_once getenv( 'WP_PHPUNIT__DIR' ) . '/includes/functions.php';
 
 /*
+ * The suite runs the site's own WordPress files, so keep uploads and
+ * WooCommerce logs out of the site's wp-content/uploads.
+ */
+define( 'CFK_TESTS_UPLOADS_DIR', rtrim( sys_get_temp_dir(), '/\\' ) . '/cfk-tests-' . DB_NAME . '/uploads' );
+tests_add_filter(
+	'upload_dir',
+	static function ( $dirs ) {
+		$dirs['basedir'] = CFK_TESTS_UPLOADS_DIR;
+		$dirs['baseurl'] = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads';
+		$dirs['path']    = $dirs['basedir'] . $dirs['subdir'];
+		$dirs['url']     = $dirs['baseurl'] . $dirs['subdir'];
+
+		return $dirs;
+	}
+);
+
+/*
  * Load WooCommerce, then this plugin, before other plugins would load.
  */
 tests_add_filter(

@@ -7,6 +7,7 @@
 
 namespace CheckoutFieldKit\Tests\Integration;
 
+use CheckoutFieldKit\Domain;
 use CheckoutFieldKit\Tests\TestCase;
 
 /**
@@ -31,6 +32,19 @@ class UninstallTest extends TestCase {
 		foreach ( self::OPTIONS as $option ) {
 			$this->assertFalse( get_option( $option ), $option );
 		}
+	}
+
+	public function test_deletes_the_options_the_plugin_stores_in() {
+		$domain = new Domain();
+
+		$this->assertSame(
+			self::OPTIONS,
+			array(
+				$domain->field_sets( 'classic' )->option_name(),
+				$domain->field_sets( 'block' )->option_name(),
+				$domain->settings()->option_name(),
+			)
+		);
 	}
 
 	public function test_keeps_order_data_and_other_options() {

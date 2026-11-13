@@ -26,7 +26,8 @@
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
     },
-    "sort-packages": true
+    "sort-packages": true,
+    "process-timeout": 0
   },
   "scripts": {
     "test": "phpunit",

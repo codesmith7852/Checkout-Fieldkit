@@ -1,0 +1,42 @@
+{
+  "name": "codesmith7852/checkout-fieldkit",
+  "description": "Edit, hide, reorder and add WooCommerce checkout fields on the Classic and the Block checkout.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://github.com/codesmith7852/Checkout-Fieldkit",
+  "require": {
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "phpcompatibility/php-compatibility": "10.0.0-alpha2",
+    "phpcompatibility/phpcompatibility-paragonie": "^2.0@alpha",
+    "phpcompatibility/phpcompatibility-wp": "3.0.0-alpha2",
+    "phpunit/phpunit": "^9.6",
+    "wp-coding-standards/wpcs": "^3.1",
+    "wp-phpunit/wp-phpunit": "^7.1",
+    "yoast/phpunit-polyfills": "^4.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "CheckoutFieldKit\\Tests\\": "tests/php/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true,
+    "process-timeout": 0
+  },
+  "scripts": {
+    "test": "phpunit",
+    "lint": "phpcs",
+    "lint:fix": "phpcbf"
+  },
+  "scripts-descriptions": {
+    "test": "Run the PHPUnit tests against WordPress and WooCommerce. Pass a file or --filter after --.",
+    "lint": "Check PHP against WordPress Coding Standards and PHP 7.4 compatibility.",
+    "lint:fix": "Fix what PHPCS can fix automatically."
+  }
+}

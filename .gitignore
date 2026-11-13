@@ -7,3 +7,4 @@
 *.zip
 .DS_Store
 Thumbs.db
+/tests/php/local-config.php

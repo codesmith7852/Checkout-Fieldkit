@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<ruleset name="Checkout FieldKit">
+	<description>WordPress Coding Standards and PHP 7.4+ compatibility for Checkout FieldKit.</description>
+
+	<file>./checkout-fieldkit.php</file>
+	<file>./uninstall.php</file>
+	<file>./includes</file>
+	<file>./tests/php</file>
+
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/dist/*</exclude-pattern>
+	<!-- Git-ignored, holds the developer's own database password. -->
+	<exclude-pattern>tests/php/local-config.php</exclude-pattern>
+
+	<arg name="extensions" value="php"/>
+	<arg name="basepath" value="./"/>
+	<arg name="colors"/>
+	<arg value="sp"/>
+	<arg name="parallel" value="8"/>
+
+	<!-- Coding standard: WordPress (Core, Extra and Docs). -->
+	<rule ref="WordPress"/>
+
+	<config name="minimum_wp_version" value="6.6"/>
+
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="checkout-fieldkit"/>
+			</property>
+		</properties>
+	</rule>
+
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="CheckoutFieldKit"/>
+				<element value="cfk_"/>
+			</property>
+		</properties>
+		<!-- The autoloader test needs a namespace Composer does not already map. -->
+		<exclude-pattern>tests/php/Fixtures/*</exclude-pattern>
+	</rule>
+
+	<rule ref="WordPress.WP.Capabilities">
+		<properties>
+			<property name="custom_capabilities" type="array">
+				<element value="manage_woocommerce"/>
+			</property>
+		</properties>
+	</rule>
+
+	<!-- Classes live in PSR-4 style files (includes/Plugin.php), not class-plugin.php. -->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>includes/*</exclude-pattern>
+		<exclude-pattern>tests/php/*</exclude-pattern>
+	</rule>
+
+	<!-- PHP compatibility: the plugin must run on PHP 7.4 and newer. -->
+	<config name="testVersion" value="7.4-"/>
+	<rule ref="PHPCompatibilityWP"/>
+
+	<!-- Tests: descriptive method names stand in for docblocks. -->
+	<rule ref="Squiz.Commenting.FunctionComment.Missing">
+		<exclude-pattern>tests/php/*</exclude-pattern>
+	</rule>
+	<rule ref="Squiz.Commenting.FunctionComment.MissingParamTag">
+		<exclude-pattern>tests/php/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Commenting.DocComment.MissingShort">
+		<exclude-pattern>tests/php/*</exclude-pattern>
+	</rule>
+</ruleset>

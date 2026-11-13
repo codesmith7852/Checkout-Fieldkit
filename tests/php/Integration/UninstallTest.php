@@ -41,7 +41,7 @@ class UninstallTest extends TestCase {
 	 */
 	private function run_uninstall() {
 		if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-			define( 'WP_UNINSTALL_PLUGIN', 'checkout-fieldkit/checkout-fieldkit.php' );
+			define( 'WP_UNINSTALL_PLUGIN', 'checkout-fieldkit/checkout-fieldkit.php' ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals -- Set by WordPress when uninstalling.
 		}
 
 		include dirname( CFK_TESTS_PLUGIN_FILE ) . '/uninstall.php';

@@ -18,12 +18,14 @@ return array(
 	'CFK_TEST_DB_HOST'      => 'localhost',
 	'CFK_TEST_TABLE_PREFIX' => 'wptests_',
 
+	// Leave a value empty to use its default.
+
 	// WordPress core directory. Default: the site this plugin is installed in.
-	// 'CFK_WP_CORE_DIR'    => '/var/www/html/checkout-fieldkit',
+	'CFK_WP_CORE_DIR'       => '',
 
 	// WooCommerce plugin directory. Default: the woocommerce folder next to this plugin.
-	// 'CFK_WC_DIR'         => '/var/www/html/checkout-fieldkit/wp-content/plugins/woocommerce',
+	'CFK_WC_DIR'            => '',
 
 	// Start every test with High-Performance Order Storage on ('1') or off ('0'). Default: on.
-	// 'CFK_TEST_HPOS'      => '1',
+	'CFK_TEST_HPOS'         => '',
 );

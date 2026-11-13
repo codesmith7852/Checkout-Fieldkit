@@ -19,6 +19,7 @@
 if ( ! function_exists( 'cfk_tests_setting' ) ) {
 	/**
 	 * Reads one test setting: environment first, then the local config file, then the default.
+	 * An empty value counts as not set.
 	 *
 	 * @param string $name     Setting name, for example CFK_TEST_DB_NAME.
 	 * @param string $fallback Value used when the setting is not set anywhere.
@@ -37,7 +38,7 @@ if ( ! function_exists( 'cfk_tests_setting' ) ) {
 			$local = is_readable( $file ) ? (array) require $file : array();
 		}
 
-		return isset( $local[ $name ] ) ? (string) $local[ $name ] : $fallback;
+		return isset( $local[ $name ] ) && '' !== (string) $local[ $name ] ? (string) $local[ $name ] : $fallback;
 	}
 }
 
@@ -60,7 +61,7 @@ define( 'DB_HOST', cfk_tests_setting( 'CFK_TEST_DB_HOST', 'localhost' ) );
 define( 'DB_CHARSET', 'utf8mb4' );
 define( 'DB_COLLATE', '' );
 
-$table_prefix = cfk_tests_setting( 'CFK_TEST_TABLE_PREFIX', 'wptests_' );
+$table_prefix = cfk_tests_setting( 'CFK_TEST_TABLE_PREFIX', 'wptests_' ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- The test suite reads it.
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );

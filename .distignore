@@ -38,6 +38,7 @@
 /jest.config.js
 /.eslintrc.js
 /.eslintrc.json
+/eslint.config.cjs
 /.prettierrc
 /.prettierrc.js
 /.stylelintrc.json

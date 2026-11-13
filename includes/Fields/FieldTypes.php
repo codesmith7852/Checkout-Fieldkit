@@ -46,6 +46,15 @@ final class FieldTypes {
 	}
 
 	/**
+	 * The section lists the registry places types in.
+	 *
+	 * @return Sections
+	 */
+	public function sections(): Sections {
+		return $this->sections;
+	}
+
+	/**
 	 * Every type of a checkout type, keyed by name, custom types first in
 	 * the order the admin offers them, then the built-in-only types.
 	 *

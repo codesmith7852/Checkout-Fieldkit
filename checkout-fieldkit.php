@@ -28,9 +28,4 @@ const PLUGIN_FILE = __FILE__;
 require_once __DIR__ . '/includes/Autoloader.php';
 Autoloader::register( __NAMESPACE__ . '\\', __DIR__ . '/includes' );
 
-add_action(
-	'plugins_loaded',
-	static function () {
-		Plugin::instance()->boot();
-	}
-);
+add_action( 'plugins_loaded', array( Loader::class, 'on_plugins_loaded' ) );

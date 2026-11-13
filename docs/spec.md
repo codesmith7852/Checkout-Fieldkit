@@ -11,7 +11,7 @@ Design canvas (eight frames): https://claude.ai/artifact/KVrMLgfy7drw1tCAbDjAZm
 ## 1. Platform and constraints
 
 - WordPress 6.6+, WooCommerce 9.0+, PHP 7.4+ ([ADR 0007](adr/0007-wordpress-org-minimums.md)). PHP code must parse on PHP 7.4: no `match`, enums, `readonly`, named arguments, nullsafe `?->`, union or mixed types, constructor property promotion, or `never`. Develop and test on the local PHP 8.5.
-- Plugin slug and text domain `checkout-fieldkit`; PHP namespace `CheckoutFieldKit`; prefix `cfk` for options, hooks, handles, CSS classes and meta.
+- Plugin slug and text domain `checkout-fieldkit`; PHP namespace `CheckoutFieldKit`; prefix `checkout_fieldkit_` for options, hooks, transients and any other PHP globals (Plugin Check and the wordpress.org review team reject short prefixes); `checkout-fieldkit-` for script and style handles; `cfk-` for CSS classes.
 - WordPress coding standards (WPCS) for PHP; `@wordpress/scripts` lint rules for TypeScript and CSS.
 - Declares compatibility with High-Performance Order Storage (`custom_order_tables`) and the Block checkout (`cart_checkout_blocks`).
 - Order and customer data go through WooCommerce's CRUD objects (`$order->update_meta_data()`, `WC_Customer`), never direct post-meta calls.
@@ -102,14 +102,14 @@ The server returns every problem at once, each with section, field index, field 
 
 | Option | Content |
 |---|---|
-| `cfk_field_set_classic` | `{"version":1,"sections":{"billing":[...],"shipping":[...],"additional":[...]}}` |
-| `cfk_field_set_block` | `{"version":1,"sections":{"contact":[...],"address":[...],"additional":[...]}}` |
-| `cfk_settings` | `{"version":1,"localeOverrides":{"label":true,"placeholder":true,"order":true,"required":false,"classes":false}}` |
+| `checkout_fieldkit_field_set_classic` | `{"version":1,"sections":{"billing":[...],"shipping":[...],"additional":[...]}}` |
+| `checkout_fieldkit_field_set_block` | `{"version":1,"sections":{"contact":[...],"address":[...],"additional":[...]}}` |
+| `checkout_fieldkit_settings` | `{"version":1,"localeOverrides":{"label":true,"placeholder":true,"order":true,"required":false,"classes":false}}` |
 
 - When an option does not exist, reading returns the built-in defaults; nothing is written until the first save. Reset deletes the option.
 - Field sets are autoloaded (read on every checkout); keep them lean.
 - Each stored value carries `version`; a migration step runs on read when the version is older.
-- `uninstall.php` deletes these options. It never touches order or customer data.
+- `uninstall.php` deletes these options (on every site of a multisite network when uninstalled network-wide). It never touches order or customer data.
 
 ## 4. Classic checkout behaviour
 
@@ -203,7 +203,7 @@ Namespace `checkout-fieldkit/v1`. Every route requires `manage_woocommerce`. Bod
 |---|---|
 | `GET /context` | `{ activeCheckoutType: "classic" \| "block" \| "unknown", checkoutPageUrl, blockSupported: bool, sections, fieldTypes, essentialFields, validations }` — everything the admin needs that isn't stored data. |
 | `GET /field-sets/{classic\|block}` | The stored or default field set. |
-| `PUT /field-sets/{classic\|block}` | Replace the whole field set. `422` with `{code:"cfk_invalid_field_set", data:{status:422, errors:[{section, index, key, message}]}}` when invalid; nothing is saved. |
+| `PUT /field-sets/{classic\|block}` | Replace the whole field set. `422` with `{code:"checkout_fieldkit_invalid_field_set", data:{status:422, errors:[{section, index, key, message}]}}` when invalid; nothing is saved. |
 | `GET /settings`, `PUT /settings` | Read or replace settings. |
 | `GET /export?include=classic,block,settings` | `{plugin:"checkout-fieldkit", format:1, exportedAt, classic?, block?, settings?}` |
 | `POST /import/preview` | Body: an export document. Returns `{targets:[{target, action:"replace"\|"keep", added:[names], removed:[names], changed:[names]}]}` or `422`. |
@@ -214,7 +214,7 @@ Active checkout type: `block` when the page set as WooCommerce's Checkout page c
 
 ## 8. Extension points (for a future Pro add-on)
 
-Filters: `cfk_field_types` (types per checkout type), `cfk_sections`, `cfk_field_defaults`, `cfk_validate_field` (extra field rules), `cfk_render_field_classic`, `cfk_sanitize_value`, `cfk_display_value`, `cfk_admin_settings` (data passed to the admin app). Actions: `cfk_field_set_saved`, `cfk_order_values_saved`. Each documented with a docblock.
+Filters: `checkout_fieldkit_field_types` (types per checkout type), `checkout_fieldkit_sections`, `checkout_fieldkit_field_defaults`, `checkout_fieldkit_validate_field` (extra field rules), `checkout_fieldkit_render_field_classic`, `checkout_fieldkit_sanitize_value`, `checkout_fieldkit_display_value`, `checkout_fieldkit_admin_settings` (data passed to the admin app). Actions: `checkout_fieldkit_field_set_saved`, `checkout_fieldkit_order_values_saved`. Each documented with a docblock.
 
 ## 9. Testing (test-driven)
 

@@ -154,6 +154,17 @@ final class SettingsRepository {
 	}
 
 	/**
+	 * Settings as save() would store them: migrated, unknown keys dropped,
+	 * missing or non-boolean values replaced by their defaults.
+	 *
+	 * @param array<string, mixed> $settings Settings as given.
+	 * @return array{version: int, localeOverrides: array<string, bool>}
+	 */
+	public function normalize( array $settings ): array {
+		return $this->build( $this->migrator->migrate( $settings ) );
+	}
+
+	/**
 	 * Replaces the stored settings. Unknown keys are dropped; missing ones
 	 * take their defaults. Nothing is stored when anything is wrong.
 	 *
@@ -174,7 +185,7 @@ final class SettingsRepository {
 			);
 		}
 
-		update_option( self::OPTION, $this->build( $this->migrator->migrate( $settings ) ), true );
+		update_option( self::OPTION, $this->normalize( $settings ), true );
 
 		return true;
 	}

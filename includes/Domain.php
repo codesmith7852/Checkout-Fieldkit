@@ -15,6 +15,7 @@ use CheckoutFieldKit\Fields\FieldTypes;
 use CheckoutFieldKit\Fields\Sections;
 use CheckoutFieldKit\Storage\FieldSetRepository;
 use CheckoutFieldKit\Storage\SettingsRepository;
+use CheckoutFieldKit\Tools\ImportExport;
 
 defined( 'ABSPATH' ) || exit;
 
@@ -146,6 +147,20 @@ final class Domain {
 			'settings',
 			static function () {
 				return new SettingsRepository();
+			}
+		);
+	}
+
+	/**
+	 * Export, import and its preview.
+	 *
+	 * @return ImportExport
+	 */
+	public function import_export(): ImportExport {
+		return $this->once(
+			'import_export',
+			function () {
+				return new ImportExport( $this );
 			}
 		);
 	}

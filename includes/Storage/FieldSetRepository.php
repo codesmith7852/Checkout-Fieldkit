@@ -221,6 +221,19 @@ final class FieldSetRepository {
 	}
 
 	/**
+	 * A field set as save() would store it: migrated and normalised. Only
+	 * meaningful for a set validate() accepts.
+	 *
+	 * @param array<string, mixed> $field_set Field set as given: {version?, sections}.
+	 * @return array{version: int, sections: array<string, array<int, array<string, mixed>>>}
+	 */
+	public function normalize( array $field_set ): array {
+		$value = $this->migrator->migrate( $field_set );
+
+		return $this->build( isset( $value['sections'] ) && is_array( $value['sections'] ) ? $value['sections'] : array() );
+	}
+
+	/**
 	 * Replaces the stored field set. Nothing is stored when the set has any
 	 * problem.
 	 *
@@ -242,7 +255,7 @@ final class FieldSetRepository {
 			);
 		}
 
-		$set    = $this->build( $this->migrator->migrate( $field_set )['sections'] );
+		$set    = $this->normalize( $field_set );
 		$stored = array(
 			'version'  => $set['version'],
 			'sections' => array(),

@@ -117,6 +117,8 @@ final class Plugin {
 	 * @return Service[]
 	 */
 	private function default_services(): array {
-		return array();
+		return array(
+			new Compatibility( PLUGIN_FILE ),
+		);
 	}
 }

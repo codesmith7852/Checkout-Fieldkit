@@ -91,15 +91,6 @@ final class Plugin {
 		foreach ( $this->services as $service ) {
 			$service->register_hooks();
 		}
-
-		/**
-		 * Fires after Checkout FieldKit has registered its services.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param Plugin $plugin The plugin; call add() to register another service.
-		 */
-		do_action( 'cfk_loaded', $this );
 	}
 
 	/**

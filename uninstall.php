@@ -10,6 +10,4 @@
 
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-foreach ( array( 'cfk_field_set_classic', 'cfk_field_set_block', 'cfk_settings' ) as $cfk_option ) {
-	delete_option( $cfk_option );
-}
+array_map( 'delete_option', array( 'cfk_field_set_classic', 'cfk_field_set_block', 'cfk_settings' ) );

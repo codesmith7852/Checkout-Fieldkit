@@ -37,7 +37,7 @@
 		<properties>
 			<property name="prefixes" type="array">
 				<element value="CheckoutFieldKit"/>
-				<element value="cfk_"/>
+				<element value="checkout_fieldkit"/>
 			</property>
 		</properties>
 		<!-- The autoloader test needs a namespace Composer does not already map. -->

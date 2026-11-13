@@ -67,12 +67,17 @@ abstract class TestCase extends WP_UnitTestCase {
 
 	/**
 	 * Creates a user with the given role and makes them the current user.
+	 * On multisite an administrator is also made a super admin, as the site
+	 * owner of a single site would be.
 	 *
 	 * @param string $role Role name, for example 'administrator' or 'shop_manager'.
 	 * @return int User ID.
 	 */
 	protected function log_in_as( $role ) {
 		$user_id = self::factory()->user->create( array( 'role' => $role ) );
+		if ( 'administrator' === $role && is_multisite() ) {
+			grant_super_admin( $user_id );
+		}
 		wp_set_current_user( $user_id );
 
 		return $user_id;

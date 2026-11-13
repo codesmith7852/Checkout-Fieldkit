@@ -37,6 +37,13 @@ final class Plugin {
 	private $booted = false;
 
 	/**
+	 * Field model, defaults and storage, created on first use.
+	 *
+	 * @var Domain|null
+	 */
+	private $domain = null;
+
+	/**
 	 * The shared instance, with the plugin's own services added.
 	 *
 	 * @return Plugin
@@ -94,6 +101,21 @@ final class Plugin {
 	}
 
 	/**
+	 * The field model, defaults and storage that features share: field types,
+	 * sections, built-in fields, the field set and settings repositories, and
+	 * import/export. See Domain.
+	 *
+	 * @return Domain
+	 */
+	public function domain(): Domain {
+		if ( null === $this->domain ) {
+			$this->domain = new Domain();
+		}
+
+		return $this->domain;
+	}
+
+	/**
 	 * Whether boot() has run.
 	 *
 	 * @return bool
@@ -103,7 +125,9 @@ final class Plugin {
 	}
 
 	/**
-	 * The services the plugin itself provides. Each feature adds its service here.
+	 * The services the plugin itself provides. Each feature adds its service
+	 * here, one per line; services that need field sets or settings take
+	 * $this->domain(), for example `new Rest\Routes( $this->domain() ),`.
 	 *
 	 * @return Service[]
 	 */

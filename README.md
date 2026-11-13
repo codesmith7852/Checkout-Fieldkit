@@ -56,6 +56,7 @@ Uploads and WooCommerce logs written during tests go to `<system temp>/cfk-tests
 | `composer test -- tests/php/Integration/PluginTest.php` | One test file |
 | `composer test -- --filter test_name` | Tests whose name matches |
 | `CFK_TEST_HPOS=0 composer test` | Same tests with orders stored as posts |
+| `composer test:multisite` | Same tests on a multisite network, including the `ms-required` group |
 | `composer lint` / `composer lint:fix` | PHPCS: WordPress Coding Standards and PHP 7.4 compatibility |
 | `npm test` | Jest with Testing Library (`npm test -- tests/js/admin` for one folder) |
 | `npm run build` / `npm start` | Build the admin scripts into `build/` once / on every change |
@@ -70,6 +71,11 @@ Uploads and WooCommerce logs written during tests go to `<system temp>/cfk-tests
 - `checkout-fieldkit.php`: plugin header and start-up only.
 - `includes/`: PHP classes in the `CheckoutFieldKit` namespace, one class per file, PSR-4 style (`CheckoutFieldKit\Admin\Page` is `includes/Admin/Page.php`). No Composer packages at runtime.
 - A feature is a class implementing `CheckoutFieldKit\Service` (it adds its hooks in `register_hooks()`), listed in `Plugin::default_services()`. Nothing loads unless WooCommerce 9.0+ is active.
+- The domain core (no hooks of its own) is shared through `Plugin::instance()->domain()`:
+  - `includes/Fields/`: `Sections`, `FieldTypes` (types per checkout type and section, the settings that apply to each, validation choices; `describe()` serialises them for the admin), `Field` (a field's keys and defaults), `FieldNormalizer`, `FieldSetValidator` (every rule of spec §2.5, all problems at once), `DefaultFields` (WooCommerce's built-in fields) and `EssentialFields`.
+  - `includes/Storage/`: `FieldSetRepository` (one per checkout type) and `SettingsRepository`, each with a schema `VERSION` and a `Migrator`.
+  - `includes/Tools/ImportExport.php`: export document, import validation, preview and import.
+- Any filter we add to WooCommerce's checkout field or country locale hooks must return its input unchanged while `DefaultFields::is_computing()` is true, so our changes never end up in the defaults and reading a field set inside the filter cannot recurse.
 - `src/`: TypeScript and CSS for the admin, built to `build/` by `@wordpress/scripts` (entries in `webpack.config.js`).
 - `tests/php/`: PHPUnit tests; extend `CheckoutFieldKit\Tests\TestCase`, which gives you `create_order()`, `create_product()`, `enable_hpos()`, `disable_hpos()`, `log_in_as()` and the `data_order_storage` provider for running a test with HPOS on and off.
 - `tests/js/`: Jest tests, mirroring `src/`.

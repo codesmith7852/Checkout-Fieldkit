@@ -31,11 +31,16 @@
   },
   "scripts": {
     "test": "phpunit",
+    "test:multisite": [
+      "@putenv WP_MULTISITE=1",
+      "phpunit"
+    ],
     "lint": "phpcs",
     "lint:fix": "phpcbf"
   },
   "scripts-descriptions": {
     "test": "Run the PHPUnit tests against WordPress and WooCommerce. Pass a file or --filter after --.",
+    "test:multisite": "Run the PHPUnit tests on a multisite network, including the ms-required group.",
     "lint": "Check PHP against WordPress Coding Standards and PHP 7.4 compatibility.",
     "lint:fix": "Fix what PHPCS can fix automatically."
   }

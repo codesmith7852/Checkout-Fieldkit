@@ -7,6 +7,7 @@
 
 namespace CheckoutFieldKit\Tests\Integration;
 
+use CheckoutFieldKit\Domain;
 use CheckoutFieldKit\Plugin;
 use CheckoutFieldKit\Service;
 use CheckoutFieldKit\Tests\TestCase;
@@ -99,6 +100,14 @@ class PluginTest extends TestCase {
 
 		$this->assertSame( $service, $plugin->get( get_class( $service ) ) );
 		$this->assertNull( $plugin->get( 'CheckoutFieldKit\\NoSuchService' ) );
+	}
+
+	public function test_the_domain_objects_are_created_once_and_shared() {
+		$plugin = new Plugin();
+
+		$this->assertInstanceOf( Domain::class, $plugin->domain() );
+		$this->assertSame( $plugin->domain(), $plugin->domain() );
+		$this->assertSame( Plugin::instance()->domain(), Plugin::instance()->domain() );
 	}
 
 	/**

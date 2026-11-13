@@ -150,6 +150,62 @@ class FieldSetRepositoryTest extends TestCase {
 		$this->assertSame( $before, get_option( 'checkout_fieldkit_field_set_block' ) );
 	}
 
+	public function test_block_email_stays_on_and_required_and_only_its_position_is_ours() {
+		$repository                    = ( new Domain() )->field_sets( 'block' );
+		$set                           = $repository->get();
+		$set['sections']['contact'][0] = array_merge(
+			$set['sections']['contact'][0],
+			array(
+				'enabled'  => false,
+				'required' => false,
+				'label'    => 'Mail',
+			)
+		);
+		$set['sections']['contact'][]  = array(
+			'name' => 'nickname',
+			'type' => 'text',
+		);
+		$set['sections']['contact']    = array_reverse( $set['sections']['contact'] );
+
+		$this->assertTrue( $repository->save( $set ) );
+
+		$email = $repository->get()['sections']['contact'][1];
+		$this->assertSame( 'email', $email['name'] );
+		$this->assertTrue( $email['enabled'] );
+		$this->assertTrue( $email['required'] );
+		$this->assertSame( 'Email address', $email['label'] );
+	}
+
+	public function test_block_built_ins_keep_woocommerces_values_for_what_is_not_ours() {
+		$repository                             = ( new Domain() )->field_sets( 'block' );
+		$set                                    = $repository->get();
+		$set['sections']['address'][4]['label'] = 'Street';
+		$set['sections']['address'][4]['placeholder'] = 'Not on Block';
+		$set['sections']['address'][4]['classes']     = array( 'wide' );
+
+		$repository->save( $set );
+
+		$address_1 = $repository->get()['sections']['address'][4];
+		$this->assertSame( 'address_1', $address_1['name'] );
+		$this->assertSame( 'Street', $address_1['label'] );
+		$this->assertSame( '', $address_1['placeholder'] );
+		$this->assertSame( array(), $address_1['classes'] );
+	}
+
+	public function test_sections_come_back_complete_and_in_display_order() {
+		$repository      = ( new Domain() )->field_sets( 'classic' );
+		$set             = $repository->get();
+		$set['sections'] = array(
+			'additional' => $set['sections']['additional'],
+			'shipping'   => $set['sections']['shipping'],
+			'billing'    => $set['sections']['billing'],
+		);
+
+		$repository->save( $set );
+
+		$this->assertSame( array( 'billing', 'shipping', 'additional' ), array_keys( $repository->get()['sections'] ) );
+	}
+
 	public function test_saving_announces_the_saved_set() {
 		$heard = array();
 		add_action(

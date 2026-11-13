@@ -39,7 +39,7 @@ trait ClassicOrders {
 			),
 			array(
 				'value' => 'web',
-				'label' => 'The <web>',
+				'label' => 'Web "shop"',
 			),
 		);
 	}

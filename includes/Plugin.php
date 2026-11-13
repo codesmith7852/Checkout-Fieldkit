@@ -135,6 +135,7 @@ final class Plugin {
 		return array(
 			new Compatibility( PLUGIN_FILE ),
 			new Classic\OrderValueSaver( $this->domain()->field_sets( Fields\CheckoutType::CLASSIC ), new Orders\ValueSanitizer( $this->domain()->field_types() ) ),
+			new Orders\ValueDisplay( $this->domain()->field_sets( Fields\CheckoutType::CLASSIC ), new Orders\FieldValues( $this->domain()->field_types() ) ),
 		);
 	}
 }

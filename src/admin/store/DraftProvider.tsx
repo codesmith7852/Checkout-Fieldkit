@@ -360,12 +360,14 @@ export interface FieldSetApi {
 	setRequired: ( ids: string | string[], required: boolean ) => void;
 	/**
 	 * Adds a field, filled in from the context's field defaults, at `index`
-	 * (default: the end). Returns its id.
+	 * (default: the end). Returns its id. Pass the `id` of a field removed
+	 * earlier to put it back as it was (undo); otherwise a new id is made.
 	 */
 	addField: (
 		section: string,
 		field?: Partial< Field >,
-		index?: number
+		index?: number,
+		id?: string
 	) => string;
 	removeField: ( id: string ) => void;
 	removeFields: ( ids: string[] ) => void;
@@ -476,9 +478,10 @@ export function useFieldSet( checkoutType: CheckoutType ): FieldSetApi {
 			addField: (
 				section: string,
 				field: Partial< Field > = {},
-				index?: number
+				index?: number,
+				reuseId?: string
 			) => {
-				const id = newFieldId();
+				const id = reuseId || newFieldId();
 				dispatch( {
 					type: 'ADD_FIELD',
 					checkoutType,

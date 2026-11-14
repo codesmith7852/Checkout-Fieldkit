@@ -147,6 +147,31 @@ describe( 'DraftProvider', () => {
 		expect( result.current.draft.isDirty ).toBe( false );
 	} );
 
+	it( 'puts a removed field back under its old id, as if never removed (undo)', () => {
+		const { result } = setup();
+		const vat = result.current.classic.sections[ 0 ].rows[ 2 ];
+
+		act( () => result.current.classic.removeField( vat.id ) );
+		expect( result.current.draft.changeCount ).toBe( 1 );
+
+		let id = '';
+		act( () => {
+			id = result.current.classic.addField(
+				vat.section,
+				vat.field,
+				vat.index,
+				vat.id
+			);
+		} );
+
+		expect( id ).toBe( vat.id );
+		expect( result.current.classic.getRow( vat.id ) ).toMatchObject( {
+			index: 2,
+			isNew: false,
+		} );
+		expect( result.current.draft.changeCount ).toBe( 0 );
+	} );
+
 	it( 'updates settings and discards everything', () => {
 		const { result } = setup();
 		const [ first ] = result.current.classic.sections[ 0 ].rows;

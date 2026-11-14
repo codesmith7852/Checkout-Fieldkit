@@ -90,6 +90,13 @@ function renderShell( api: jest.Mocked< Api > = fakeApi() ) {
 }
 
 const header = () => screen.getByRole( 'banner' );
+// The app's polite live region (the Fields screen's drag-and-drop adds its own).
+const announcer = () =>
+	screen
+		.getAllByRole( 'status' )
+		.find( ( region ) =>
+			region.classList.contains( 'cfk-visually-hidden' )
+		);
 const saveButton = () =>
 	within( header() ).getByRole( 'button', { name: /Save changes|Saving/ } );
 
@@ -172,9 +179,7 @@ describe( 'App header', () => {
 		);
 		expect( api.putFieldSet ).toHaveBeenCalledTimes( 1 );
 		expect( api.putSettings ).not.toHaveBeenCalled();
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
-			'Changes saved.'
-		);
+		expect( announcer() ).toHaveTextContent( 'Changes saved.' );
 		expect( saveButton() ).toHaveFocus();
 	} );
 
@@ -254,9 +259,7 @@ describe( 'App header', () => {
 				within( header() ).getByText( 'All changes saved' )
 			).toBeVisible()
 		);
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent(
-			'Unsaved changes discarded.'
-		);
+		expect( announcer() ).toHaveTextContent( 'Unsaved changes discarded.' );
 	} );
 } );
 

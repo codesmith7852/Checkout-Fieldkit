@@ -145,7 +145,7 @@ class OrderValueDisplayTest extends TestCase {
 	 */
 	private function order_page( $action, WC_Order $order ) {
 		ob_start();
-		do_action( $action, $order->get_id() );
+		do_action( $action, $order->get_id() ); // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.DynamicHooknameFound -- WooCommerce's own order page actions.
 
 		return ob_get_clean();
 	}

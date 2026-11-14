@@ -12,7 +12,12 @@ import { registerBlockType, createBlock } from '@wordpress/blocks';
 import { useBlockProps } from '@wordpress/block-editor';
 import { select, dispatch, subscribe } from '@wordpress/data';
 import Preview from './editor/Preview';
-import { FIELDS_BLOCK, placeAdditionalBlock } from './editor/placement';
+import {
+	additionalBlockIndex,
+	FIELDS_BLOCK,
+	placeAdditionalBlock,
+	type EditorAccess,
+} from './editor/placement';
 import { ADDITIONAL_BLOCK, BLOCKS } from './blocks';
 
 for ( const { metadata, section } of BLOCKS ) {
@@ -38,48 +43,91 @@ interface BlockEditorActions {
 	) => void;
 }
 
-let placing = false;
-
-subscribe( () => {
+/**
+ * Access to the block editor's data for placeAdditionalBlock().
+ */
+function editorAccess(): EditorAccess | null {
 	const editor = select( 'core/block-editor' ) as unknown as
 		BlockEditorSelectors | undefined;
-	if ( placing || ! editor ) {
+	if ( ! editor ) {
+		return null;
+	}
+
+	return {
+		formIds: () =>
+			editor.getBlocksByName
+				? editor.getBlocksByName( FIELDS_BLOCK )
+				: editor
+						.getClientIdsWithDescendants()
+						.filter(
+							( id ) => editor.getBlockName( id ) === FIELDS_BLOCK
+						),
+		childNames: ( clientId ) =>
+			editor
+				.getBlockOrder( clientId )
+				.map( ( id ) => editor.getBlockName( id ) ?? '' ),
+		insert: ( name, index, parentId ) =>
+			(
+				dispatch( 'core/block-editor' ) as unknown as BlockEditorActions
+			 ).insertBlock(
+				createBlock( name, { lock: { remove: true } } ),
+				index,
+				parentId,
+				false
+			),
+	};
+}
+
+let scheduled = false;
+
+/**
+ * Whether WooCommerce's payment methods have finished loading in the editor.
+ * Changing the checkout form while they load makes WooCommerce's payment
+ * block re-render endlessly, so the block is placed afterwards.
+ */
+function paymentsSettled(): boolean {
+	const payment = select( 'wc/store/payment' ) as unknown as
+		| {
+				paymentMethodsInitialized?: () => boolean;
+				expressPaymentMethodsInitialized?: () => boolean;
+		  }
+		| undefined;
+
+	return (
+		! payment ||
+		( ( payment.paymentMethodsInitialized?.() ?? true ) &&
+			( payment.expressPaymentMethodsInitialized?.() ?? true ) )
+	);
+}
+
+// Watch for checkout forms without the block. The block is inserted after the
+// current update has finished, not while the editor is still notifying its
+// listeners, so the Checkout block's own components are not updated mid-render.
+subscribe( () => {
+	const access = editorAccess();
+	if ( scheduled || ! access || ! paymentsSettled() ) {
 		return;
 	}
 
-	placing = true;
-	try {
-		placeAdditionalBlock(
-			{
-				formIds: () =>
-					editor.getBlocksByName
-						? editor.getBlocksByName( FIELDS_BLOCK )
-						: editor
-								.getClientIdsWithDescendants()
-								.filter(
-									( id ) =>
-										editor.getBlockName( id ) ===
-										FIELDS_BLOCK
-								),
-				childNames: ( clientId ) =>
-					editor
-						.getBlockOrder( clientId )
-						.map( ( id ) => editor.getBlockName( id ) ?? '' ),
-				insert: ( name, index, parentId ) =>
-					(
-						dispatch(
-							'core/block-editor'
-						) as unknown as BlockEditorActions
-					 ).insertBlock(
-						createBlock( name, { lock: { remove: true } } ),
-						index,
-						parentId,
-						false
-					),
-			},
-			ADDITIONAL_BLOCK
+	const missing = access
+		.formIds()
+		.some(
+			( id ) =>
+				additionalBlockIndex(
+					access.childNames( id ),
+					ADDITIONAL_BLOCK
+				) !== null
 		);
-	} finally {
-		placing = false;
+	if ( ! missing ) {
+		return;
 	}
+
+	scheduled = true;
+	window.setTimeout( () => {
+		const current = editorAccess();
+		if ( current ) {
+			placeAdditionalBlock( current, ADDITIONAL_BLOCK );
+		}
+		scheduled = false;
+	}, 0 );
 }, 'core/block-editor' );

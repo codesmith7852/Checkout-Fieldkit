@@ -28,9 +28,7 @@ function reducer( state: State = {}, action: Action ): State {
 		case 'SET':
 			return { ...state, ...action.errors };
 		case 'CLEAR': {
-			if ( ! state[ action.id ] ) {
-				return state;
-			}
+			// Like WooCommerce's store: a new state even when nothing was there.
 			const next = { ...state };
 			delete next[ action.id ];
 			return next;

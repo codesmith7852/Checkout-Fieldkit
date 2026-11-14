@@ -4,7 +4,7 @@
  * checkout extension data (`extensions.checkout-fieldkit.<name>`), which the
  * server checks and saves (Block\OrderValues in PHP).
  */
-import { useEffect, useState } from '@wordpress/element';
+import { useEffect, useMemo, useState } from '@wordpress/element';
 import { useSelect } from '@wordpress/data';
 import { isPostcode } from '@woocommerce/blocks-checkout';
 import { getSectionFields, NAMESPACE } from '../settings';
@@ -77,7 +77,9 @@ function useValidationContext(): ValidationContext {
 		return cart?.getCustomerData?.()?.billingAddress?.country ?? '';
 	}, [] );
 
-	return { country, isPostcode };
+	// The same object while the country is the same: WooCommerce's inputs
+	// validate again whenever their validation callbacks change.
+	return useMemo( () => ( { country, isPostcode } ), [ country ] );
 }
 
 export default function SectionFields( {

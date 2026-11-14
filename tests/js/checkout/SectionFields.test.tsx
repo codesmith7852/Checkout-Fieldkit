@@ -6,6 +6,7 @@
  */
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useSelect } from '@wordpress/data';
 import SectionFields from '../../../src/checkout/fields/SectionFields';
 import type { CheckoutField } from '../../../src/checkout/types';
 import { setTestSettings } from '../support/woocommerce/settings';
@@ -120,6 +121,38 @@ describe( 'SectionFields', () => {
 			'inputmode',
 			'decimal'
 		);
+	} );
+
+	it( 'settles after rendering optional text fields (no endless re-validation)', () => {
+		useFields( [
+			field( { name: 'a', label: 'A' } ),
+			field( { name: 'b', type: 'email', label: 'B' } ),
+		] );
+
+		// WooCommerce's checkout re-renders its blocks whenever its stores change.
+		function Checkout() {
+			useSelect(
+				( select ) => [
+					(
+						select( 'wc/store/validation' ) as unknown as {
+							getAll: () => object;
+						}
+					 ).getAll(),
+				],
+				[]
+			);
+
+			return (
+				<SectionFields
+					section="contact"
+					checkoutExtensionData={ { setExtensionData: () => {} } }
+				/>
+			);
+		}
+
+		render( <Checkout /> );
+
+		expect( screen.getAllByRole( 'textbox' ) ).toHaveLength( 2 );
 	} );
 
 	it( 'marks optional fields in the label', () => {

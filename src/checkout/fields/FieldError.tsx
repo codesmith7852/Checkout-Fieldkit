@@ -17,7 +17,20 @@ export default function FieldError( {
 
 	return (
 		<div className="wc-block-components-validation-error" role="alert">
-			<p id={ id }>{ message }</p>
+			<p id={ id }>
+				<svg
+					className="cfk-checkout-error-icon"
+					viewBox="0 0 24 24"
+					width="24"
+					height="24"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<circle cx="12" cy="12" r="9" fill="currentColor" />
+					<path d="M11 7h2v6h-2zm0 8h2v2h-2z" fill="#fff" />
+				</svg>
+				<span>{ message }</span>
+			</p>
 		</div>
 	);
 }

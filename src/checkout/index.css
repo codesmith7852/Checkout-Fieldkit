@@ -33,3 +33,21 @@
 .cfk-checkout-paragraph {
 	margin: 12px 0 0;
 }
+
+.cfk-checkout-textarea.has-error .wc-block-components-textarea {
+	border-color: #cc1818;
+}
+
+.cfk-checkout-field .wc-block-components-validation-error > p {
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	margin: 0;
+}
+
+.cfk-checkout-error-icon {
+	flex: none;
+	width: 16px;
+	height: 16px;
+	color: #cc1818;
+}

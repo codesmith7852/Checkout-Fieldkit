@@ -4,12 +4,13 @@
  * components closely enough to test how our fields use them:
  *
  * - ValidatedTextInput keeps one entry in the validation store under its
- *   `errorId`: validated on mount and on change (hidden), shown on blur. The
+ *   `errorId`: validated on mount, on change and whenever its validation
+ *   callbacks change (hidden), shown on blur. The
  *   message is the input's custom validity when customValidation() set one,
  *   else customValidityMessage( validity ), else the browser's message.
  * - CheckboxControl is a labelled checkbox passing other props to the input.
  */
-import { useEffect, useRef } from '@wordpress/element';
+import { useCallback, useEffect, useRef } from '@wordpress/element';
 import { useDispatch, useSelect } from '@wordpress/data';
 import type { ReactNode } from 'react';
 
@@ -64,27 +65,37 @@ export function ValidatedTextInput( {
 		[ key ]
 	);
 
-	const validate = ( hidden: boolean ) => {
-		const element = input.current;
-		if ( ! element ) {
-			return;
-		}
-		element.setCustomValidity( '' );
-		if ( element.checkValidity() && customValidation( element ) ) {
-			clearValidationError( key );
-			return;
-		}
-		const message = element.validity.customError
-			? element.validationMessage
-			: customValidityMessage?.( element.validity ) ||
-				element.validationMessage;
-		setValidationErrors( { [ key ]: { message, hidden } } );
-	};
+	// Like WooCommerce's, validation is a callback that changes with the
+	// validation props, and the input validates again whenever it changes.
+	const validate = useCallback(
+		( hidden: boolean ) => {
+			const element = input.current;
+			if ( ! element ) {
+				return;
+			}
+			element.setCustomValidity( '' );
+			if ( element.checkValidity() && customValidation( element ) ) {
+				clearValidationError( key );
+				return;
+			}
+			const message = element.validity.customError
+				? element.validationMessage
+				: customValidityMessage?.( element.validity ) ||
+					element.validationMessage;
+			setValidationErrors( { [ key ]: { message, hidden } } );
+		},
+		[
+			key,
+			customValidation,
+			customValidityMessage,
+			clearValidationError,
+			setValidationErrors,
+		]
+	);
 
 	useEffect( () => {
 		validate( true );
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [ value ] );
+	}, [ value, validate ] );
 	useEffect( () => () => clearValidationError( key ), [ key ] ); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const shown = !! error && ! error.hidden;

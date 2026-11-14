@@ -462,6 +462,9 @@ describe( 'selection bar', () => {
 			screen.queryByRole( 'group', { name: 'Selected fields' } )
 		).not.toBeInTheDocument();
 		expect( select( 'billing_vat' ) ).not.toBeChecked();
+		expect(
+			screen.getByRole( 'button', { name: 'Add field' } )
+		).toHaveFocus();
 	} );
 
 	it( 'selects every field in the section from the header checkbox', async () => {

@@ -4,6 +4,7 @@
  * this folder and replaces this file with the real drawer; the exports and
  * their signatures are the agreed contract and must not change here.
  */
+import { createElement, Fragment } from '@wordpress/element';
 import type { ReactNode } from 'react';
 import type { CheckoutType } from '../types';
 
@@ -26,7 +27,7 @@ const STUB: FieldEditorApi = { openNew: noop, openExisting: noop };
  * @param props.children The app.
  */
 export function FieldEditorProvider( { children }: { children: ReactNode } ) {
-	return <>{ children }</>;
+	return createElement( Fragment, null, children );
 }
 
 /** Opens the field editor drawer. The stub does nothing. */

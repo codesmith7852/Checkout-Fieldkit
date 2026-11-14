@@ -119,7 +119,8 @@ export function SectionFields( { checkoutType, section }: SectionFieldsProps ) {
 	const [ selectedIds, setSelectedIds ] = useState< string[] >( [] );
 	const [ confirm, setConfirm ] = useState< PendingConfirm | null >( null );
 	const [ feedback, setFeedback ] = useState< Feedback | null >( null );
-	const [ focusRowId, setFocusRowId ] = useState< string | null >( null );
+	// Where focus goes after the control that had it disappears.
+	const [ focusTarget, setFocusTarget ] = useState< string | null >( null );
 	const undoRef = useRef< HTMLButtonElement >( null );
 	const panelRef = useRef< HTMLDivElement >( null );
 
@@ -137,18 +138,13 @@ export function SectionFields( { checkoutType, section }: SectionFieldsProps ) {
 		}
 	}, [ feedback ] );
 
-	// After an undo, go back to the restored row.
 	useEffect( () => {
-		if ( ! focusRowId ) {
+		if ( ! focusTarget ) {
 			return;
 		}
-		panelRef.current
-			?.querySelector< HTMLElement >(
-				`[data-row-id="${ focusRowId }"] .cfk-field-row__select`
-			)
-			?.focus();
-		setFocusRowId( null );
-	}, [ focusRowId ] );
+		panelRef.current?.querySelector< HTMLElement >( focusTarget )?.focus();
+		setFocusTarget( null );
+	}, [ focusTarget ] );
 
 	const consequenceOf = ( row: FieldRow ) =>
 		essentialConsequence( context, checkoutType, row.field );
@@ -369,7 +365,10 @@ export function SectionFields( { checkoutType, section }: SectionFieldsProps ) {
 				)
 			);
 		setFeedback( null );
-		setFocusRowId( items[ 0 ].id );
+		// Back to the restored row.
+		setFocusTarget(
+			`[data-row-id="${ items[ 0 ].id }"] .cfk-field-row__select`
+		);
 		announce(
 			items.length === 1
 				? sprintf(
@@ -450,7 +449,10 @@ export function SectionFields( { checkoutType, section }: SectionFieldsProps ) {
 						onTurnOff={ () => turnSelected( false ) }
 						onCopy={ () => copyRows( selectedRows ) }
 						onDelete={ () => removeRows( selectedRows ) }
-						onClear={ () => setSelectedIds( [] ) }
+						onClear={ () => {
+							setSelectedIds( [] );
+							setFocusTarget( '.cfk-fields-toolbar button' );
+						} }
 					/>
 				) : (
 					<div className="cfk-fields-toolbar">

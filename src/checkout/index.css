@@ -1,0 +1,35 @@
+/*
+ * Our inner blocks inside WooCommerce's checkout form. WooCommerce's own
+ * component classes give the inputs their look; this only spaces the fields.
+ */
+.cfk-checkout-fields--additional {
+	margin: 0 0 24px;
+}
+
+.cfk-checkout-field {
+	margin-top: 12px;
+}
+
+/* WooCommerce's text inputs and selects bring their own top margin. */
+.cfk-checkout-field > .wc-block-components-text-input,
+.cfk-checkout-field .wc-blocks-components-select {
+	margin-top: 0;
+}
+
+.cfk-checkout-field__label {
+	display: block;
+	margin: 0 0 4px;
+	font-size: var(--wp--preset--font-size--small, 14px);
+}
+
+.cfk-checkout-radio .wc-block-components-radio-control__option {
+	display: block;
+}
+
+.cfk-checkout-heading {
+	margin: 24px 0 0;
+}
+
+.cfk-checkout-paragraph {
+	margin: 12px 0 0;
+}

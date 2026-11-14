@@ -76,7 +76,9 @@ Uploads and WooCommerce logs written during tests go to `<system temp>/cfk-tests
   - `includes/Storage/`: `FieldSetRepository` (one per checkout type) and `SettingsRepository`, each with a schema `VERSION` and a `Migrator`.
   - `includes/Tools/ImportExport.php`: export document, import validation, preview and import.
 - Any filter we add to WooCommerce's checkout field or country locale hooks must return its input unchanged while `DefaultFields::is_computing()` is true, so our changes never end up in the defaults and reading a field set inside the filter cannot recurse.
+- `includes/Classic/`: the Classic checkout. `CheckoutFields` applies the classic field set and the locale overrides to WooCommerce's billing, shipping and order fields (also used by My Account → Addresses), `FieldRenderer` renders the custom types WooCommerce cannot, `CheckoutValidation` checks number, url and choice values.
 - `src/`: TypeScript and CSS for the admin, built to `build/` by `@wordpress/scripts` (entries in `webpack.config.js`).
+- `src/classic-checkout/`: the Classic checkout's small script (locale overrides after a country change, enhanced multi-selects) and styles. The PHP loads them from `build/` when built.
 - `tests/php/`: PHPUnit tests; extend `CheckoutFieldKit\Tests\TestCase`, which gives you `create_order()`, `create_product()`, `enable_hpos()`, `disable_hpos()`, `log_in_as()` and the `data_order_storage` provider for running a test with HPOS on and off.
 - `tests/js/`: Jest tests, mirroring `src/`.
 

@@ -136,6 +136,7 @@ final class Plugin {
 			new Compatibility( PLUGIN_FILE ),
 			new Classic\CheckoutFields( $this->domain() ),
 			new Classic\FieldRenderer( $this->domain() ),
+			new Classic\CheckoutValidation( $this->domain() ),
 		);
 	}
 }

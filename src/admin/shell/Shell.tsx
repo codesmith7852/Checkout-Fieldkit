@@ -4,6 +4,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { cx } from '../components';
+import { FieldEditorProvider } from '../editor';
 import { useLocation } from '../location';
 import { FieldsScreen } from '../screens/FieldsScreen';
 import { SettingsScreen } from '../screens/SettingsScreen';
@@ -66,7 +67,9 @@ export function Shell() {
 				) }
 			>
 				<ProblemSummary ref={ summaryRef } onRetry={ onSave } />
-				<Screen />
+				<FieldEditorProvider>
+					<Screen />
+				</FieldEditorProvider>
 			</div>
 		</div>
 	);

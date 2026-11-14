@@ -138,6 +138,7 @@ final class Plugin {
 			new Block\BuiltInAddressFields( $this->domain() ),
 			new Classic\OrderValueSaver( $this->domain()->field_sets( Fields\CheckoutType::CLASSIC ), new Orders\ValueSanitizer( $this->domain()->field_types() ) ),
 			new Orders\ValueDisplay( $this->domain()->field_sets( Fields\CheckoutType::CLASSIC ), new Orders\FieldValues( $this->domain()->field_types() ) ),
+			new Block\OrderValues( $this->domain() ),
 		);
 	}
 }

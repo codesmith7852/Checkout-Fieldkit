@@ -18,8 +18,8 @@ defined( 'ABSPATH' ) || exit;
  * (spec §5, ADR 0008): every enabled custom field, in the stored order. The
  * built-in `email` is WooCommerce's own and is never ours to render.
  *
- * script_data() is what the inner blocks receive in the browser, through the
- * checkout block integration (`getSetting( 'checkout-fieldkit_data' )`):
+ * The inner blocks receive script_data() in the browser, through the checkout
+ * block integration (`getSetting( 'checkout-fieldkit_data' )`):
  *
  *     {
  *       namespace: 'checkout-fieldkit',   // Store API extension namespace.

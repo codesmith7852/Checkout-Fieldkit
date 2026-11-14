@@ -137,6 +137,8 @@ final class Plugin {
 			new Classic\CheckoutFields( $this->domain() ),
 			new Classic\FieldRenderer( $this->domain() ),
 			new Classic\CheckoutValidation( $this->domain() ),
+			new Block\AddressFields( $this->domain() ),
+			new Block\BuiltInAddressFields( $this->domain() ),
 		);
 	}
 }

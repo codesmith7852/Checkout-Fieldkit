@@ -8,6 +8,7 @@
 namespace CheckoutFieldKit;
 
 use CheckoutFieldKit\Environment\ActiveCheckoutType;
+use CheckoutFieldKit\Environment\BlockSupport;
 use CheckoutFieldKit\Fields\DefaultFields;
 use CheckoutFieldKit\Fields\EssentialFields;
 use CheckoutFieldKit\Fields\FieldNormalizer;
@@ -176,6 +177,20 @@ final class Domain {
 			'active_checkout_type',
 			static function () {
 				return new ActiveCheckoutType();
+			}
+		);
+	}
+
+	/**
+	 * Whether the Block checkout features can run, and why not (spec §5).
+	 *
+	 * @return BlockSupport
+	 */
+	public function block_support(): BlockSupport {
+		return $this->once(
+			'block_support',
+			static function () {
+				return BlockSupport::from_environment();
 			}
 		);
 	}

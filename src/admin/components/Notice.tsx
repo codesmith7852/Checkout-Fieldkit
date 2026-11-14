@@ -1,8 +1,11 @@
 /**
  * Notice: a message in the page, such as "shoppers don't see these fields"
  * or a save error. It does not announce itself; pass `role` ("status" or
- * "alert") when it should, or use the live region.
+ * "alert") when it should, or use the live region. With a `role` and a
+ * `title`, the title names the notice, so a focused notice (`tabIndex={ -1 }`)
+ * reads its title first.
  */
+import { forwardRef, useId } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import type { AriaRole, ReactNode } from 'react';
 import { Button } from './Button';
@@ -38,45 +41,64 @@ const ICONS = {
 	success: CheckIcon,
 };
 
-export function Notice( {
-	tone = 'info',
-	title,
-	children,
-	actions,
-	onDismiss,
-	role,
-	className,
-	id,
-	tabIndex,
-}: NoticeProps ) {
-	const Icon = ICONS[ tone ];
-	return (
-		<div
-			className={ cx( 'cfk-notice', `cfk-notice--${ tone }`, className ) }
-			role={ role }
-			id={ id }
-			tabIndex={ tabIndex }
-		>
-			<Icon className="cfk-notice__icon" />
-			<div className="cfk-notice__body">
-				{ title && <p className="cfk-notice__title">{ title }</p> }
-				{ children && (
-					<div className="cfk-notice__content">{ children }</div>
+export const Notice = forwardRef< HTMLDivElement, NoticeProps >(
+	function NoticeRender(
+		{
+			tone = 'info',
+			title,
+			children,
+			actions,
+			onDismiss,
+			role,
+			className,
+			id,
+			tabIndex,
+		},
+		ref
+	) {
+		const titleId = useId();
+		const Icon = ICONS[ tone ];
+		return (
+			<div
+				ref={ ref }
+				className={ cx(
+					'cfk-notice',
+					`cfk-notice--${ tone }`,
+					className
 				) }
-				{ actions && (
-					<div className="cfk-notice__actions">{ actions }</div>
+				role={ role }
+				aria-labelledby={ role && title ? titleId : undefined }
+				id={ id }
+				tabIndex={ tabIndex }
+			>
+				<Icon className="cfk-notice__icon" />
+				<div className="cfk-notice__body">
+					{ title && (
+						<p className="cfk-notice__title" id={ titleId }>
+							{ title }
+						</p>
+					) }
+					{ children && (
+						<div className="cfk-notice__content">{ children }</div>
+					) }
+					{ actions && (
+						<div className="cfk-notice__actions">{ actions }</div>
+					) }
+				</div>
+				{ onDismiss && (
+					<Button
+						variant="ghost"
+						size="small"
+						className="cfk-notice__dismiss"
+						label={ __(
+							'Dismiss this notice',
+							'checkout-fieldkit'
+						) }
+						icon={ <CloseIcon /> }
+						onClick={ onDismiss }
+					/>
 				) }
 			</div>
-			{ onDismiss && (
-				<Button
-					variant="ghost"
-					size="small"
-					className="cfk-notice__dismiss"
-					label={ __( 'Dismiss this notice', 'checkout-fieldkit' ) }
-					icon={ <CloseIcon /> }
-					onClick={ onDismiss }
-				/>
-			) }
-		</div>
-	);
-}
+		);
+	}
+);

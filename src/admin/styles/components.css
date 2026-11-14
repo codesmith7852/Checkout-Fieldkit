@@ -103,7 +103,9 @@
 }
 
 .cfk-button:disabled,
-.cfk-button:disabled:hover {
+.cfk-button:disabled:hover,
+.cfk-button[aria-disabled="true"],
+.cfk-button[aria-disabled="true"]:hover {
 	border-color: var(--cfk-border);
 	background: var(--cfk-neutral-soft);
 	color: var(--cfk-text-disabled);

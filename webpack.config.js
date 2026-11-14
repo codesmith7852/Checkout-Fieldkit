@@ -8,5 +8,6 @@ module.exports = {
 	...defaultConfig,
 	entry: {
 		admin: './src/admin/index.tsx',
+		'classic-checkout': './src/classic-checkout/index.ts',
 	},
 };

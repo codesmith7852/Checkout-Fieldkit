@@ -1,15 +1,18 @@
 /**
- * Tools screen (spec §6.5), placeholder. A later issue adds Export, Import
- * and Reset; after an import or reset it hands the server's new data to
- * useDraft().replaceSaved().
+ * Tools screen (spec §6.5, frame 5): Export, Import and Reset. These act on
+ * the server at once; after an import or reset the store takes the server's
+ * new data through useDraft().replaceSaved().
  */
 import { __ } from '@wordpress/i18n';
-import { Card } from '../components';
 import { ScreenHeader } from '../shell/ScreenHeader';
+import { ExportCard } from './tools/ExportCard';
+import { ImportCard } from './tools/ImportCard';
+import { ResetCard } from './tools/ResetCard';
+import './tools/tools.css';
 
 export function ToolsScreen() {
 	return (
-		<>
+		<div className="cfk-tools">
 			<ScreenHeader
 				title={ __( 'Tools', 'checkout-fieldkit' ) }
 				description={ __(
@@ -17,28 +20,9 @@ export function ToolsScreen() {
 					'checkout-fieldkit'
 				) }
 			/>
-			<Card
-				title={ __( 'Export', 'checkout-fieldkit' ) }
-				description={ __(
-					'Download your fields and settings as a file you can import on another site.',
-					'checkout-fieldkit'
-				) }
-			/>
-			<Card
-				title={ __( 'Import', 'checkout-fieldkit' ) }
-				description={ __(
-					"Replace this site's setup with one from an exported file.",
-					'checkout-fieldkit'
-				) }
-			/>
-			<Card
-				tone="danger"
-				title={ __( 'Reset', 'checkout-fieldkit' ) }
-				description={ __(
-					"Go back to WooCommerce's own fields. Orders keep the answers already saved on them.",
-					'checkout-fieldkit'
-				) }
-			/>
-		</>
+			<ExportCard />
+			<ImportCard />
+			<ResetCard />
+		</div>
 	);
 }

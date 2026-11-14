@@ -175,6 +175,77 @@ class FieldSetValidatorTest extends TestCase {
 	}
 
 	/**
+	 * WooCommerce passes every posted checkout value whose key has a setter on
+	 * WC_Order or WC_Customer straight to that setter (WC_Checkout::create_order,
+	 * process_customer; WC_Form_Handler::save_address). A custom field with
+	 * such a name would let a shopper set, say, their own user role.
+	 *
+	 * @dataProvider data_setter_names
+	 *
+	 * @param string $checkout_type Checkout type.
+	 * @param string $section       Section to add the field to.
+	 * @param string $name          A name with a setter.
+	 */
+	public function test_custom_fields_cannot_use_the_name_of_an_order_or_customer_property( $checkout_type, $section, $name ) {
+		$set                           = $this->defaults->field_set( $checkout_type );
+		$set['sections'][ $section ][] = array( 'name' => $name );
+		$index                         = count( $set['sections'][ $section ] ) - 1;
+
+		$errors = $this->validator->validate( $checkout_type, $set );
+
+		$this->assertSame( array( $this->error( $section, $index, 'name' ) ), $this->keys_of( $errors ) );
+		$this->assertStringContainsString( 'order or the customer', $errors[0]['message'] );
+	}
+
+	public function data_setter_names() {
+		return array(
+			'role on classic'                 => array( 'classic', 'additional', 'role' ),
+			'role on block'                   => array( 'block', 'contact', 'role' ),
+			'status'                          => array( 'classic', 'additional', 'status' ),
+			'currency'                        => array( 'classic', 'billing', 'currency' ),
+			'total'                           => array( 'block', 'additional', 'total' ),
+			'customer_note'                   => array( 'classic', 'additional', 'customer_note' ),
+			'customer_id'                     => array( 'classic', 'shipping', 'customer_id' ),
+			'password'                        => array( 'classic', 'billing', 'password' ),
+			'is_vat_exempt'                   => array( 'block', 'address', 'is_vat_exempt' ),
+			'transaction_id'                  => array( 'classic', 'additional', 'transaction_id' ),
+			'billing_ prefixed, not built-in' => array( 'block', 'contact', 'billing_address_1' ),
+		);
+	}
+
+	public function test_no_setter_of_the_order_or_the_customer_is_left_open() {
+		$names = array();
+		foreach ( array( \WC_Order::class, \WC_Customer::class ) as $class ) {
+			foreach ( get_class_methods( $class ) as $method ) {
+				$name = substr( $method, 4 );
+				if ( 0 === strpos( $method, 'set_' ) && preg_match( FieldSetValidator::NAME_PATTERN, $name ) ) {
+					$names[ $name ] = true;
+				}
+			}
+		}
+		$this->assertArrayHasKey( 'role', $names );
+
+		$open = array();
+		foreach ( array_keys( $names ) as $name ) {
+			$set                             = $this->defaults->field_set( 'classic' );
+			$set['sections']['additional'][] = array( 'name' => $name );
+			if ( array() === $this->validator->validate( 'classic', $set ) ) {
+				$open[] = $name;
+			}
+		}
+
+		$this->assertSame( array(), $open );
+	}
+
+	public function test_names_without_a_setter_stay_free() {
+		$set                             = $this->defaults->field_set( 'classic' );
+		$set['sections']['billing'][]    = array( 'name' => 'billing_vat' );
+		$set['sections']['additional'][] = array( 'name' => 'roles_note' );
+
+		$this->assertSame( array(), $this->validator->validate( 'classic', $set ) );
+	}
+
+	/**
 	 * Rule 2: built-in fields keep name, type and builtIn, and cannot be removed.
 	 */
 	public function test_built_in_fields_cannot_be_removed() {

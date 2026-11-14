@@ -1,0 +1,28 @@
+/* Fields Checkout FieldKit renders on the classic checkout and address form. */
+
+.cfk-fieldset {
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.cfk-legend {
+	padding: 0;
+}
+
+.cfk-choice {
+	display: block;
+}
+
+.cfk-choice label {
+	display: inline;
+}
+
+.cfk-field-hidden {
+	display: none !important;
+}
+
+.cfk-heading {
+	margin-bottom: 0;
+}

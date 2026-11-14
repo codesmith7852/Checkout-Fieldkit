@@ -1,0 +1,90 @@
+/**
+ * Design tokens (spec §6): every colour, radius and shadow of the admin app
+ * is a CSS variable. Dialogs render outside .cfk-admin (in a portal), so the
+ * tokens are defined on their overlay too.
+ */
+.cfk-admin,
+.cfk-dialog-overlay {
+
+	/* Type */
+	--cfk-font: -apple-system, "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen-Sans", "Ubuntu", "Cantarell", "Helvetica Neue", sans-serif;
+	--cfk-font-mono: ui-monospace, "SFMono-Regular", "Menlo", "Consolas", monospace;
+	--cfk-font-size: 14px;
+	--cfk-font-size-small: 13px;
+	--cfk-line-height: 1.45;
+
+	/* Accent */
+	--cfk-accent: #3858e9;
+	--cfk-accent-hover: #2541c4;
+	--cfk-accent-text: #2541c4;
+	--cfk-accent-soft: #eef1fd;
+	--cfk-accent-tint: #f5f7ff;
+	--cfk-on-accent: #fff;
+
+	/* Neutrals */
+	--cfk-text: #1e1e1e;
+	--cfk-text-secondary: #3c434a;
+	--cfk-text-muted: #50575e;
+	--cfk-text-disabled: #757575;
+	--cfk-icon-muted: #8c8f94;
+	--cfk-page: #f0f0f1;
+	--cfk-surface: #fff;
+	--cfk-surface-muted: #fafafa;
+	--cfk-surface-hover: #f6f7f7;
+	--cfk-surface-sunken: #e4e5e7;
+	--cfk-border: #dcdcde;
+	--cfk-border-strong: #c3c4c7;
+	--cfk-border-hover: #8c8f94;
+	--cfk-divider: #f0f0f1;
+	--cfk-neutral-soft: #f0f0f1;
+
+	/* Status */
+	--cfk-success-soft: #dff3e6;
+	--cfk-success-text: #00632c;
+	--cfk-warning-soft: #fdf1dc;
+	--cfk-warning-text: #6b3a00;
+	--cfk-warning-notice: #fdf6e9;
+	--cfk-warning-border: #efd7a6;
+	--cfk-warning-notice-text: #4d3300;
+	--cfk-warning-icon: #8a5300;
+	--cfk-unsaved-text: #7a4300;
+	--cfk-unsaved-dot: #d97706;
+	--cfk-danger: #b32d2e;
+	--cfk-danger-border: #d9a3a4;
+	--cfk-danger-soft: #fcf0f1;
+	--cfk-danger-soft-border: #f1b9bc;
+	--cfk-danger-text: #8a1f22;
+	--cfk-danger-card-border: #e9c4c5;
+	--cfk-info-soft: #f5f7ff;
+	--cfk-info-border: #e3e8fb;
+	--cfk-info-text: #1f2f80;
+
+	/* Controls */
+	--cfk-switch-off: #8c8f94;
+	--cfk-switch-thumb: #fff;
+
+	/* Shape and depth */
+	--cfk-radius-card: 10px;
+	--cfk-radius-dialog: 12px;
+	--cfk-radius-notice: 8px;
+	--cfk-radius-control: 6px;
+	--cfk-radius-tag: 4px;
+	--cfk-radius-round: 999px;
+	--cfk-shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.14);
+	--cfk-shadow-thumb: 0 1px 2px rgba(0, 0, 0, 0.25);
+	--cfk-shadow-dialog: 0 20px 48px rgba(0, 0, 0, 0.28);
+	--cfk-overlay: rgba(29, 35, 39, 0.55);
+	--cfk-focus-ring: 0 0 0 2px var(--cfk-surface), 0 0 0 4px var(--cfk-accent);
+
+	/* Layout */
+	--cfk-content-width: 1180px;
+	--cfk-content-width-narrow: 860px;
+	--cfk-gutter: 32px;
+}
+
+@media (max-width: 782px) {
+
+	.cfk-admin {
+		--cfk-gutter: 16px;
+	}
+}

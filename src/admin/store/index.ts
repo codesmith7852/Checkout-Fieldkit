@@ -3,6 +3,7 @@
  */
 export {
 	DraftProvider,
+	useApi,
 	useContextData,
 	useDraft,
 	useFieldSet,

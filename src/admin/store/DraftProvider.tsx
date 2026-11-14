@@ -5,6 +5,7 @@
  *     useFieldSet( type )  One field set's rows by section, and actions on fields.
  *     useSettingsDraft()   The settings, and update().
  *     useContextData()     GET /context.
+ *     useApi()             The REST client, for routes outside the draft (Tools).
  */
 import {
 	createContext,
@@ -60,6 +61,7 @@ interface Store {
 	state: DraftState;
 	dispatch: ( action: DraftAction ) => void;
 	save: () => Promise< SaveOutcome >;
+	api: Api;
 }
 
 const StoreContext = createContext< Store | null >( null );
@@ -235,8 +237,8 @@ export function DraftProvider( {
 	}, [ api, announce ] );
 
 	const store = useMemo(
-		() => ( { state, dispatch, save } ),
-		[ state, save ]
+		() => ( { state, dispatch, save, api } ),
+		[ state, save, api ]
 	);
 
 	return (
@@ -555,4 +557,9 @@ export function useSettingsDraft(): SettingsDraftApi {
 /** GET /context: sections, field types, essential fields and the rest. */
 export function useContextData(): Context {
 	return useStore().state.context;
+}
+
+/** The REST client the draft saves through, for export, import and reset. */
+export function useApi(): Api {
+	return useStore().api;
 }

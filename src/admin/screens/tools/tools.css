@@ -1,0 +1,165 @@
+/* Tools screen (frame 5): Export, Import and Reset cards. */
+
+.cfk-tools {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+}
+
+.cfk-tools-card .cfk-card__header {
+	padding: 18px 22px 6px;
+	border-bottom: 0;
+}
+
+.cfk-tools-card__body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px 22px 20px;
+}
+
+.cfk-tools-card__actions {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+}
+
+.cfk-admin .cfk-tools-card__hint {
+	margin: 0;
+	color: var(--cfk-text-muted);
+	font-size: var(--cfk-font-size-small);
+}
+
+/* Checkboxes */
+
+.cfk-checks {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	min-width: 0;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+
+.cfk-check {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	color: var(--cfk-text);
+}
+
+.cfk-admin .cfk-check input[type="checkbox"] {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	accent-color: var(--cfk-accent);
+}
+
+.cfk-admin .cfk-check input[type="checkbox"]:focus-visible {
+	outline: none;
+	box-shadow: var(--cfk-focus-ring);
+}
+
+.cfk-check__hint {
+	color: var(--cfk-text-muted);
+	font-size: var(--cfk-font-size-small);
+}
+
+/* Import: the chosen file and the plan */
+
+.cfk-file {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 10px 12px;
+	border: 1px solid var(--cfk-border);
+	border-radius: var(--cfk-radius-notice);
+	background: var(--cfk-surface-muted);
+}
+
+.cfk-file__icon {
+	flex: none;
+	color: var(--cfk-text-muted);
+}
+
+.cfk-file__name {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	font-family: var(--cfk-font-mono);
+	font-size: var(--cfk-font-size-small);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cfk-admin .cfk-import-plan {
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	border: 1px solid var(--cfk-border);
+	border-radius: var(--cfk-radius-notice);
+	list-style: none;
+}
+
+.cfk-admin .cfk-import-plan__row {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	margin: 0;
+	padding: 10px 14px;
+	border-bottom: 1px solid var(--cfk-divider);
+}
+
+.cfk-admin .cfk-import-plan__row:last-child {
+	border-bottom: 0;
+}
+
+.cfk-import-plan__action {
+	flex: none;
+	margin-top: 1px;
+}
+
+.cfk-import-plan__text {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.cfk-import-plan__text strong {
+	font-weight: 600;
+}
+
+.cfk-import-plan__summary {
+	color: var(--cfk-text-muted);
+	font-size: var(--cfk-font-size-small);
+}
+
+/* Reset */
+
+.cfk-reset-row {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px 20px;
+	padding: 14px 22px;
+	border-top: 1px solid var(--cfk-divider);
+}
+
+.cfk-reset-row__text {
+	display: flex;
+	flex: 1 1 360px;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.cfk-reset-row__text strong {
+	font-weight: 600;
+}
+
+.cfk-reset-row__consequence {
+	color: var(--cfk-text-muted);
+	font-size: var(--cfk-font-size-small);
+}

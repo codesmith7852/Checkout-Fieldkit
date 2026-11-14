@@ -140,6 +140,7 @@ final class Plugin {
 			new Orders\ValueDisplay( $this->domain()->field_sets( Fields\CheckoutType::CLASSIC ), new Orders\FieldValues( $this->domain()->field_types() ) ),
 			new Block\CheckoutBlocks( $this->domain(), PLUGIN_FILE ),
 			new Block\OrderValues( $this->domain() ),
+			new Block\OrderValueDisplay( $this->domain() ),
 		);
 	}
 }

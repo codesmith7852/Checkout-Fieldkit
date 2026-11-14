@@ -78,10 +78,7 @@ export interface Context {
 	fieldTypes: Record< CheckoutType, FieldTypeDefinition[] >;
 	validations: Record< CheckoutType, NamedLabel[] >;
 	essentialFields: Record< CheckoutType, EssentialField[] >;
-	builtInEditableSettings: Record<
-		CheckoutType,
-		Record< string, string[] >
-	>;
+	builtInEditableSettings: Record< CheckoutType, Record< string, string[] > >;
 	reservedNames: string[];
 	fieldNamePattern: string;
 	fieldDefaults: Record< CheckoutType, Field >;

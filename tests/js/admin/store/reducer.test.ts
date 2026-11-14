@@ -321,9 +321,7 @@ describe( 'draftReducer', () => {
 			ids: [ vat ],
 			changes: { name: 'billing_vat_number' },
 		} );
-		expect( state.problems.map( ( p ) => p.key ) ).toEqual( [
-			'default',
-		] );
+		expect( state.problems.map( ( p ) => p.key ) ).toEqual( [ 'default' ] );
 	} );
 
 	it( 'replaces a saved resource, for import and reset', () => {

@@ -124,9 +124,7 @@ export function newFieldId(): string {
 export function idsFor( fieldSet: FieldSet ): SectionIds {
 	const ids: SectionIds = {};
 	Object.keys( fieldSet.sections ).forEach( ( section ) => {
-		ids[ section ] = fieldSet.sections[ section ].map( () =>
-			newFieldId()
-		);
+		ids[ section ] = fieldSet.sections[ section ].map( () => newFieldId() );
 	} );
 	return ids;
 }
@@ -291,7 +289,9 @@ function removeFields(
 		sections[ section ] = fieldSet.sections[ section ].filter(
 			( _field, index ) => ! unwanted.has( sectionIds[ index ] )
 		);
-		nextIds[ section ] = sectionIds.filter( ( id ) => ! unwanted.has( id ) );
+		nextIds[ section ] = sectionIds.filter(
+			( id ) => ! unwanted.has( id )
+		);
 	} );
 
 	const next = withFieldSet(
@@ -586,13 +586,17 @@ export function countFieldSetChanges(
  *
  * @param saved Saved settings.
  * @param draft Draft settings.
+ * @param depth Nesting level; 0 for the settings object itself.
  */
 export function countSettingsChanges(
 	saved: Record< string, unknown >,
 	draft: Record< string, unknown >,
 	depth = 0
 ): number {
-	const keys = new Set( [ ...Object.keys( saved ), ...Object.keys( draft ) ] );
+	const keys = new Set( [
+		...Object.keys( saved ),
+		...Object.keys( draft ),
+	] );
 	let count = 0;
 
 	keys.forEach( ( key ) => {
@@ -617,11 +621,17 @@ export function countSettingsChanges(
  * @param state    Draft state.
  * @param resource Field set or settings.
  */
-export function changeCountFor( state: DraftState, resource: Resource ): number {
+export function changeCountFor(
+	state: DraftState,
+	resource: Resource
+): number {
 	if ( resource === 'settings' ) {
 		return state.saved.settings === state.draft.settings
 			? 0
-			: countSettingsChanges( state.saved.settings, state.draft.settings );
+			: countSettingsChanges(
+					state.saved.settings,
+					state.draft.settings
+				);
 	}
 	if (
 		state.saved[ resource ] === state.draft[ resource ] &&

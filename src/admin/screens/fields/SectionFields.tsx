@@ -153,12 +153,27 @@ export function SectionFields( { checkoutType, section }: SectionFieldsProps ) {
 	const consequenceOf = ( row: FieldRow ) =>
 		essentialConsequence( context, checkoutType, row.field );
 
-	const onSelect = ( ids: string[], value: boolean ) =>
-		setSelectedIds( ( previous ) =>
-			value
-				? [ ...new Set( [ ...previous, ...ids ] ) ]
-				: previous.filter( ( id ) => ! ids.includes( id ) )
+	const onSelect = ( ids: string[], value: boolean ) => {
+		const next = value
+			? [ ...new Set( [ ...selected, ...ids ] ) ]
+			: selected.filter( ( id ) => ! ids.includes( id ) );
+		setSelectedIds( next );
+		// The selection bar appears above the table, away from the focused box.
+		announce(
+			next.length > 0
+				? sprintf(
+						/* translators: %d: number of selected fields. */
+						_n(
+							'%d field selected. Actions for it are above the table.',
+							'%d fields selected. Actions for them are above the table.',
+							next.length,
+							'checkout-fieldkit'
+						),
+						next.length
+					)
+				: __( 'No fields selected.', 'checkout-fieldkit' )
 		);
+	};
 
 	const onEnabledChange = ( row: FieldRow, enabled: boolean ) => {
 		const consequence = consequenceOf( row );

@@ -448,6 +448,12 @@ describe( 'selection bar', () => {
 		await user.click( select( 'billing_first_name' ) );
 		const bar = screen.getByRole( 'group', { name: 'Selected fields' } );
 		expect( within( bar ).getByText( '2 selected' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText(
+				'2 fields selected. Actions for them are above the table.',
+				{ selector: '[role="status"] *' }
+			)
+		).toBeInTheDocument();
 
 		await user.click(
 			within( bar ).getByRole( 'button', { name: 'Clear selection' } )

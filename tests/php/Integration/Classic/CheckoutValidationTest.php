@@ -286,4 +286,16 @@ class CheckoutValidationTest extends ClassicTestCase {
 		$this->assertSame( '<strong>House number</strong> is not a valid number.', $notices[0]['notice'] );
 		$this->assertSame( array( 'id' => 'billing_house_number' ), $notices[0]['data'] );
 	}
+
+	public function test_my_account_addresses_on_a_block_store_are_left_to_woocommerce() {
+		$this->add_test_fields();
+		$this->use_checkout_page( '<!-- wp:woocommerce/checkout /-->' );
+		$user_id = $this->log_in_as( 'customer' );
+		$_POST   = array( 'billing_house_number' => 'twelve' );
+
+		do_action( 'woocommerce_after_save_address_validation', $user_id, 'billing', array(), new WC_Customer( $user_id ) );
+		$_POST = array();
+
+		$this->assertSame( array(), wc_get_notices( 'error' ) );
+	}
 }

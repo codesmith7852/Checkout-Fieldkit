@@ -78,15 +78,115 @@ class LocaleOverridesTest extends ClassicTestCase {
 		);
 	}
 
-	public function test_order_on_keeps_our_order_in_japan() {
+	public function test_order_on_keeps_our_order_in_japan_once_we_reordered() {
+		$this->move_to_top( 'billing', 'billing_email' );
 		$this->set_locale_overrides( array( 'order' => true ) );
 
 		$fields = $this->billing( 'JP' );
 
-		$this->assertSame( 10, $fields['billing_first_name']['priority'] );
-		$this->assertSame( 20, $fields['billing_last_name']['priority'] );
-		$this->assertSame( array( 'billing_first_name', 'billing_last_name' ), array_slice( array_keys( $fields ), 0, 2 ) );
+		$this->assertSame( 10, $fields['billing_email']['priority'] );
+		$this->assertSame( 20, $fields['billing_first_name']['priority'] );
+		$this->assertSame( 30, $fields['billing_last_name']['priority'] );
+		$this->assertSame( array( 'billing_email', 'billing_first_name', 'billing_last_name' ), array_slice( array_keys( $fields ), 0, 3 ) );
 		$this->assertLessThan( $fields['billing_postcode']['priority'], $fields['billing_city']['priority'] );
+	}
+
+	/**
+	 * Moves a field to the top of its section.
+	 *
+	 * @param string $section Section name.
+	 * @param string $name    Field name.
+	 */
+	private function move_to_top( $section, $name ) {
+		$this->change_fields(
+			function ( &$sections ) use ( $section, $name ) {
+				foreach ( $sections[ $section ] as $index => $field ) {
+					if ( $field['name'] === $name ) {
+						unset( $sections[ $section ][ $index ] );
+						array_unshift( $sections[ $section ], $field );
+						return;
+					}
+				}
+			}
+		);
+	}
+
+	/**
+	 * A switch only makes our value win where the store owner changed it from
+	 * WooCommerce's default. Untouched properties keep following the country,
+	 * so right after activation, or after saving without edits, nothing about
+	 * other countries changes.
+	 */
+	public function test_right_after_activation_india_keeps_its_own_labels() {
+		$this->set_locale_overrides(
+			array(
+				'label'       => true,
+				'placeholder' => true,
+				'order'       => true,
+				'required'    => true,
+				'classes'     => true,
+			)
+		);
+
+		$this->assertSame( 'PIN Code', $this->billing( 'IN' )['billing_postcode']['label'] );
+		$this->assertSame( 'State', $this->billing( 'IN' )['billing_state']['label'] );
+	}
+
+	public function test_saving_without_edits_changes_nothing_in_other_countries() {
+		$this->change_fields(
+			static function () {
+			}
+		);
+		$this->set_locale_overrides(
+			array(
+				'label'       => true,
+				'placeholder' => true,
+				'order'       => true,
+				'required'    => true,
+				'classes'     => true,
+			)
+		);
+		$this->assertTrue( $this->domain()->field_sets( 'classic' )->is_stored() );
+
+		foreach ( array( 'IN', 'JP', 'US', 'AE' ) as $country ) {
+			$this->assertSame( $this->woocommerce_fields( $country ), $this->billing( $country ), $country );
+		}
+	}
+
+	public function test_an_untouched_property_follows_the_country_even_with_its_switch_on() {
+		$this->change_field( 'billing', 'billing_postcode', array( 'label' => 'Postal area' ) );
+		$this->set_locale_overrides(
+			array(
+				'label'    => true,
+				'order'    => true,
+				'required' => true,
+				'classes'  => true,
+			)
+		);
+
+		$jp = $this->billing( 'JP' );
+		$gb = $this->billing( 'GB' );
+
+		$this->assertSame( 'Postal area', $this->billing( 'IN' )['billing_postcode']['label'], 'Changed: ours.' );
+		$this->assertSame( 'Prefecture', $jp['billing_state']['label'], 'Untouched label: Japan\'s.' );
+		$this->assertSame( 10, $jp['billing_last_name']['priority'], 'Untouched order: Japan\'s.' );
+		$this->assertSame( array( 'form-row-first' ), $jp['billing_last_name']['class'], 'Untouched classes: Japan\'s.' );
+		$this->assertFalse( $gb['billing_state']['required'], 'Untouched required: Great Britain\'s.' );
+	}
+
+	/**
+	 * WooCommerce's billing fields for a country without our filter.
+	 *
+	 * @param string $country Country code.
+	 * @return array
+	 */
+	private function woocommerce_fields( $country ) {
+		$service = Plugin::instance()->get( CheckoutFields::class );
+		remove_filter( 'woocommerce_billing_fields', array( $service, 'filter_billing_fields' ), CheckoutFields::PRIORITY );
+		$fields = $this->billing( $country );
+		add_filter( 'woocommerce_billing_fields', array( $service, 'filter_billing_fields' ), CheckoutFields::PRIORITY, 2 );
+
+		return $fields;
 	}
 
 	public function test_order_off_lets_japan_use_its_own_order() {
@@ -98,7 +198,7 @@ class LocaleOverridesTest extends ClassicTestCase {
 		$this->assertSame( 20, $fields['billing_first_name']['priority'] );
 		$this->assertSame( array( 'billing_last_name', 'billing_first_name' ), array_slice( array_keys( $fields ), 0, 2 ) );
 		$this->assertSame( 65, $fields['billing_postcode']['priority'] );
-		$this->assertSame( 30, $fields['billing_company']['priority'], 'Japan has no rule for the company field, so our position applies.' );
+		$this->assertSame( 30, $fields['billing_company']['priority'], 'Untouched: as WooCommerce has it.' );
 	}
 
 	public function test_classes_on_keep_our_classes_in_japan() {
@@ -138,7 +238,14 @@ class LocaleOverridesTest extends ClassicTestCase {
 	}
 
 	public function test_a_country_rule_that_hides_a_field_always_applies() {
-		$this->change_field( 'billing', 'billing_postcode', array( 'required' => true ) );
+		$this->change_field(
+			'billing',
+			'billing_postcode',
+			array(
+				'label'    => 'Postal area',
+				'required' => false,
+			)
+		);
 		$this->set_locale_overrides(
 			array(
 				'label'       => true,
@@ -152,7 +259,7 @@ class LocaleOverridesTest extends ClassicTestCase {
 		$fields = $this->billing( 'AE' );
 
 		$this->assertTrue( $fields['billing_postcode']['hidden'] );
-		$this->assertTrue( $fields['billing_postcode']['required'] );
+		$this->assertSame( 'Postal area', $fields['billing_postcode']['label'] );
 	}
 
 	public function test_a_base_country_without_rules_of_its_own_does_not_count_as_having_rules() {
@@ -175,23 +282,21 @@ class LocaleOverridesTest extends ClassicTestCase {
 		$this->assertSame( 'Delivery code', WC()->countries->get_address_fields( 'IN', 'shipping_' )['shipping_postcode']['label'] );
 	}
 
-	public function test_the_script_gets_our_address_field_settings_and_switches() {
+	public function test_the_script_gets_our_address_field_settings_and_the_switches_that_apply_to_each() {
 		$this->change_field( 'billing', 'billing_city', array( 'label' => 'Suburb' ) );
 		$this->change_field( 'shipping', 'shipping_state', array( 'enabled' => false ) );
-		$this->set_locale_overrides( array( 'label' => false ) );
+		$this->set_locale_overrides(
+			array(
+				'label'       => true,
+				'placeholder' => true,
+				'order'       => true,
+				'required'    => true,
+				'classes'     => true,
+			)
+		);
 
 		$data = Plugin::instance()->get( CheckoutFields::class )->script_data();
 
-		$this->assertSame(
-			array(
-				'label'       => false,
-				'placeholder' => true,
-				'order'       => true,
-				'required'    => false,
-				'classes'     => false,
-			),
-			$data['localeOverrides']
-		);
 		$this->assertSame(
 			array(
 				'label'       => 'Suburb',
@@ -199,11 +304,36 @@ class LocaleOverridesTest extends ClassicTestCase {
 				'required'    => true,
 				'priority'    => 70,
 				'classes'     => array( 'form-row-wide', 'address-field' ),
+				'changed'     => array( 'label' ),
 			),
-			$data['fields']['billing_city']
+			$data['fields']['billing_city'],
+			'Only the label was changed.'
 		);
+		$this->assertSame( array(), $data['fields']['billing_postcode']['changed'] );
 		$this->assertArrayHasKey( 'shipping_postcode', $data['fields'] );
 		$this->assertArrayNotHasKey( 'shipping_state', $data['fields'], 'Disabled fields are gone from the form.' );
 		$this->assertArrayNotHasKey( 'billing_email', $data['fields'], 'Only fields WooCommerce changes per country.' );
+		$this->assertTrue( $data['localeOverrides']['label'] );
+	}
+
+	public function test_a_reordered_section_lets_the_order_switch_apply_to_every_field_of_it() {
+		$this->move_to_top( 'billing', 'billing_email' );
+		$this->set_locale_overrides( array( 'order' => true ) );
+
+		$data = Plugin::instance()->get( CheckoutFields::class )->script_data();
+
+		$this->assertContains( 'order', $data['fields']['billing_city']['changed'] );
+		$this->assertNotContains( 'order', $data['fields']['shipping_city']['changed'], 'Shipping keeps WooCommerce\'s order.' );
+	}
+
+	public function test_a_custom_field_placed_before_a_built_in_one_counts_as_reordering() {
+		$this->change_fields(
+			function ( &$sections ) {
+				array_unshift( $sections['billing'], $this->custom( 'billing_vat', 'text' ) );
+			}
+		);
+		$this->set_locale_overrides( array( 'order' => true ) );
+
+		$this->assertSame( 30, $this->billing( 'JP' )['billing_last_name']['priority'], 'Ours, not Japan\'s 10.' );
 	}
 }

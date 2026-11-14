@@ -89,7 +89,7 @@ final class FieldRenderer implements Service {
 			return $html;
 		}
 
-		$found = $this->field_set()->find( $key );
+		$found = $this->find( $key );
 		if ( null === $found || $found['field']['builtIn'] || $found['field']['type'] !== $args['type'] ) {
 			return $html;
 		}
@@ -112,7 +112,7 @@ final class FieldRenderer implements Service {
 			return $html;
 		}
 
-		$found = $this->field_set()->find( $key );
+		$found = $this->find( $key );
 		if ( null === $found ) {
 			return $html;
 		}
@@ -515,6 +515,22 @@ final class FieldRenderer implements Service {
 		$values = is_array( $value ) ? $value : explode( ',', self::scalar( $value ) );
 
 		return array_values( array_filter( array_map( 'trim', array_map( 'strval', array_filter( $values, 'is_scalar' ) ) ), 'strlen' ) );
+	}
+
+	/**
+	 * A field of the classic field set by name, unless it is a Billing or
+	 * Shipping field on a store that uses the Block checkout (AddressScope).
+	 *
+	 * @param string $key Field key.
+	 * @return array{section: string, index: int, field: array<string, mixed>}|null
+	 */
+	private function find( string $key ): ?array {
+		$found = $this->field_set()->find( $key );
+		if ( null !== $found && 'additional' !== $found['section'] && ! ( new AddressScope( $this->domain->active_checkout_type() ) )->applies() ) {
+			return null;
+		}
+
+		return $found;
 	}
 
 	/**

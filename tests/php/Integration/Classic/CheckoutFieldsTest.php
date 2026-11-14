@@ -374,4 +374,41 @@ class CheckoutFieldsTest extends ClassicTestCase {
 		$this->assertStringContainsString( 'Suburb', $html );
 		$this->assertMatchesRegularExpression( '/<input[^>]*name="billing_vat"[^>]*value="GB123456789"/', $html );
 	}
+
+	public function test_on_a_block_store_my_account_addresses_are_left_to_woocommerce() {
+		$this->use_checkout_page( '<!-- wp:woocommerce/checkout /-->' );
+		$this->change_field( 'billing', 'billing_city', array( 'label' => 'Suburb' ) );
+		$this->add_fields( 'billing', array( $this->custom( 'billing_vat', 'text' ) ) );
+		$this->change_field( 'shipping', 'shipping_company', array( 'enabled' => false ) );
+		$this->log_in_as( 'customer' );
+
+		$this->assertSame( $this->woocommerce_fields( 'GB' ), WC()->countries->get_address_fields( 'GB', 'billing_' ) );
+		$this->assertSame( $this->woocommerce_fields( 'GB', 'shipping_' ), WC()->countries->get_address_fields( 'GB', 'shipping_' ) );
+
+		ob_start();
+		WC_Shortcode_My_Account::edit_address( 'billing' );
+		$html = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'Suburb', $html );
+		$this->assertStringNotContainsString( 'billing_vat', $html );
+	}
+
+	/**
+	 * @dataProvider data_classic_or_unknown_checkout_pages
+	 *
+	 * @param string $content Checkout page content.
+	 */
+	public function test_on_a_classic_or_unknown_store_my_account_addresses_use_the_classic_set( $content ) {
+		$this->use_checkout_page( $content );
+		$this->change_field( 'billing', 'billing_city', array( 'label' => 'Suburb' ) );
+
+		$this->assertSame( 'Suburb', WC()->countries->get_address_fields( 'GB', 'billing_' )['billing_city']['label'] );
+	}
+
+	public function data_classic_or_unknown_checkout_pages() {
+		return array(
+			'classic shortcode' => array( '[woocommerce_checkout]' ),
+			'unknown'           => array( 'Just text.' ),
+		);
+	}
 }

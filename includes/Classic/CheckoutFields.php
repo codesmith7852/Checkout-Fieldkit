@@ -22,6 +22,9 @@ defined( 'ABSPATH' ) || exit;
  *
  * - Built-in fields keep WooCommerce's definition with our settings on top,
  *   subject to the locale override switches (LocaleOverrides).
+ * - On a store whose Checkout page uses the Block checkout, Billing and
+ *   Shipping (and so My Account → Addresses) are left to WooCommerce
+ *   (AddressScope).
  * - Custom fields are added as definitions of their own type.
  * - Disabled fields are removed; position becomes priority (index + 1) × 10.
  * - Fields WooCommerce or other plugins add that are not in the field set
@@ -159,7 +162,8 @@ final class CheckoutFields implements Service {
 	/**
 	 * What the classic checkout script needs: the locale override switches,
 	 * and our settings for each enabled built-in address field WooCommerce
-	 * changes per country (its country locale field selectors), keyed by name.
+	 * changes per country (its country locale field selectors), keyed by name,
+	 * with the switch names of the properties the store owner changed.
 	 *
 	 * @return array{localeOverrides: array<string, bool>, fields: array<string, array<string, mixed>>}
 	 */
@@ -170,6 +174,7 @@ final class CheckoutFields implements Service {
 		$fields = array();
 
 		foreach ( array( 'billing', 'shipping' ) as $section ) {
+			$changed = $this->changed( $section );
 			foreach ( $this->field_set()->section( $section ) as $index => $field ) {
 				$key = self::unprefixed( $section, $field['name'] );
 				if ( ! $field['builtIn'] || ! $field['enabled'] || ! in_array( $key, $keys, true ) ) {
@@ -181,6 +186,7 @@ final class CheckoutFields implements Service {
 					'required'    => $field['required'],
 					'priority'    => FieldSet::priority( $index ),
 					'classes'     => $field['classes'],
+					'changed'     => $this->locale()->changed_switches( isset( $changed[ $field['name'] ] ) ? $changed[ $field['name'] ] : array() ),
 				);
 			}
 		}
@@ -196,7 +202,7 @@ final class CheckoutFields implements Service {
 	 * My Account's address form, and nowhere else. Needs `npm run build`.
 	 */
 	public function enqueue_assets(): void {
-		if ( ! self::is_form_page() ) {
+		if ( ! self::is_form_page() || ! $this->scope()->applies() ) {
 			return;
 		}
 
@@ -252,17 +258,19 @@ final class CheckoutFields implements Service {
 	 * @return mixed
 	 */
 	private function apply_address_section( string $section, $fields, string $country ) {
-		if ( DefaultFields::is_computing() || ! is_array( $fields ) ) {
+		if ( DefaultFields::is_computing() || ! is_array( $fields ) || ! $this->scope()->applies() ) {
 			return $fields;
 		}
 
 		$rules    = $this->locale()->country_rules( $country );
 		$switches = $this->locale()->switches();
+		$changed  = $this->changed( $section );
 		$keep     = array();
 		foreach ( $this->field_set()->section( $section ) as $field ) {
 			$key = self::unprefixed( $section, $field['name'] );
-			if ( $field['builtIn'] && isset( $rules[ $key ] ) && is_array( $rules[ $key ] ) ) {
-				$keep[ $field['name'] ] = $this->locale()->kept( $rules[ $key ], $switches );
+			if ( $field['builtIn'] ) {
+				$rule                   = isset( $rules[ $key ] ) && is_array( $rules[ $key ] ) ? $rules[ $key ] : array();
+				$keep[ $field['name'] ] = $this->locale()->kept( $rule, $switches, isset( $changed[ $field['name'] ] ) ? $changed[ $field['name'] ] : array() );
 			}
 		}
 
@@ -306,6 +314,38 @@ final class CheckoutFields implements Service {
 		}
 
 		return $result;
+	}
+
+	/**
+	 * What the store owner changed on each built-in field of a section,
+	 * compared with the default field set (see LocaleOverrides::changed()).
+	 *
+	 * @param string $section Section name.
+	 * @return array<string, string[]> WooCommerce keys changed, keyed by field name.
+	 */
+	private function changed( string $section ): array {
+		$ours      = $this->field_set()->section( $section );
+		$defaults  = $this->domain->field_sets( CheckoutType::CLASSIC )->defaults()['sections'];
+		$defaults  = array_column( isset( $defaults[ $section ] ) ? $defaults[ $section ] : array(), null, 'name' );
+		$reordered = LocaleOverrides::reordered( $ours, array_keys( $defaults ) );
+
+		$changed = array();
+		foreach ( $ours as $field ) {
+			if ( $field['builtIn'] ) {
+				$changed[ $field['name'] ] = $this->locale()->changed( $field, isset( $defaults[ $field['name'] ] ) ? $defaults[ $field['name'] ] : null, $reordered );
+			}
+		}
+
+		return $changed;
+	}
+
+	/**
+	 * Where the Billing and Shipping sections apply.
+	 *
+	 * @return AddressScope
+	 */
+	private function scope(): AddressScope {
+		return new AddressScope( $this->domain->active_checkout_type() );
 	}
 
 	/**

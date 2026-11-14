@@ -6,9 +6,10 @@
  * required, hidden), falling back to WooCommerce's defaults. This module runs
  * straight after it and puts the plugin's settings back where the store's
  * locale override switches say so, the same way the server does
- * (includes/Classic/LocaleOverrides.php): a switched-on property is always
- * ours; a switched-off one is the country's where the country has a rule, and
- * ours elsewhere. A rule that hides a field always applies.
+ * (includes/Classic/LocaleOverrides.php). Only properties the store owner
+ * changed are ours: in every country when their switch is on; when it is off,
+ * only where the country has no rule. Everything else stays as WooCommerce's
+ * script left it. A rule that hides a field always applies.
  */
 
 export interface Switches {
@@ -26,6 +27,8 @@ export interface OurField {
 	required: boolean;
 	priority: number;
 	classes: string[];
+	/** Switch names of the properties the store owner changed. */
+	changed: Array< keyof Switches >;
 }
 
 /** WooCommerce's rule for one field in one country. */
@@ -59,7 +62,7 @@ export interface Effective {
 	placeholder?: string;
 	priority?: number;
 	classes?: string[];
-	required: boolean;
+	required?: boolean;
 }
 
 /** Reads and writes a row's priority where WooCommerce's script keeps it. */
@@ -98,7 +101,8 @@ export function countryRules(
 }
 
 /**
- * What one field should show in a country.
+ * What one field should show in a country; undefined leaves what
+ * WooCommerce's script set.
  *
  * @param ours     Our settings for the field.
  * @param rule     The country's rule for the field, or an empty object.
@@ -109,25 +113,21 @@ export function effective(
 	rule: Rule,
 	switches: Switches
 ): Effective {
-	const takesOurs = ( key: keyof Rule, on: boolean ) =>
-		on || ! Object.prototype.hasOwnProperty.call( rule, key );
-
-	const required = takesOurs( 'required', switches.required )
-		? ours.required
-		: Boolean( rule.required );
+	const takesOurs = ( key: keyof Rule, name: keyof Switches ) =>
+		ours.changed.includes( name ) &&
+		( switches[ name ] ||
+			! Object.prototype.hasOwnProperty.call( rule, key ) );
 
 	return {
-		label: takesOurs( 'label', switches.label ) ? ours.label : undefined,
-		placeholder: takesOurs( 'placeholder', switches.placeholder )
+		label: takesOurs( 'label', 'label' ) ? ours.label : undefined,
+		placeholder: takesOurs( 'placeholder', 'placeholder' )
 			? ours.placeholder
 			: undefined,
-		priority: takesOurs( 'priority', switches.order )
-			? ours.priority
+		priority: takesOurs( 'priority', 'order' ) ? ours.priority : undefined,
+		classes: takesOurs( 'class', 'classes' ) ? ours.classes : undefined,
+		required: takesOurs( 'required', 'required' )
+			? ours.required && rule.hidden !== true
 			: undefined,
-		classes: takesOurs( 'class', switches.classes )
-			? ours.classes
-			: undefined,
-		required: required && rule.hidden !== true,
 	};
 }
 
@@ -235,7 +235,14 @@ export function applyToRow(
 		priorities.set( row, field.priority );
 	}
 
-	setRequired( row, field.required, optionalText );
+	// A new label text drops the marker, so it is put back as it stands.
+	if ( field.required !== undefined || field.label !== undefined ) {
+		setRequired(
+			row,
+			field.required ?? row.classList.contains( 'validate-required' ),
+			optionalText
+		);
+	}
 }
 
 /**

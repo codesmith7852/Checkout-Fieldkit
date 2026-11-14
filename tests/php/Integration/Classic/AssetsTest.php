@@ -97,4 +97,15 @@ class AssetsTest extends ClassicTestCase {
 		$this->enqueue();
 		$this->assertTrue( wp_script_is( CheckoutFields::HANDLE, 'enqueued' ) );
 	}
+
+	public function test_my_account_on_a_block_store_gets_nothing() {
+		$this->use_checkout_page( '<!-- wp:woocommerce/checkout /-->' );
+		$page_id = $this->woocommerce_page( 'woocommerce_myaccount_page_id', '[woocommerce_my_account]' );
+		$this->log_in_as( 'customer' );
+
+		$this->go_to( add_query_arg( 'edit-address', 'billing', get_permalink( $page_id ) ) );
+		$this->enqueue();
+
+		$this->assertFalse( wp_script_is( CheckoutFields::HANDLE, 'enqueued' ) );
+	}
 }

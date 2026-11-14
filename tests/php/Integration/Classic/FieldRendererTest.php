@@ -340,4 +340,17 @@ class FieldRendererTest extends ClassicTestCase {
 	public function test_the_service_is_registered() {
 		$this->assertInstanceOf( FieldRenderer::class, Plugin::instance()->get( FieldRenderer::class ) );
 	}
+
+	public function test_on_a_block_store_address_fields_are_left_to_woocommerce() {
+		$this->use_checkout_page( '<!-- wp:woocommerce/checkout /-->' );
+		$filter = static function ( $html ) {
+			return $html . '<!-- changed -->';
+		};
+		add_filter( 'checkout_fieldkit_render_field_classic', $filter );
+
+		$html = woocommerce_form_field( 'billing_city', array( 'return' => true ), 'Leeds' );
+
+		remove_filter( 'checkout_fieldkit_render_field_classic', $filter );
+		$this->assertStringEndsNotWith( '<!-- changed -->', $html );
+	}
 }

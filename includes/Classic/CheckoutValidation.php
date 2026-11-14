@@ -26,7 +26,8 @@ defined( 'ABSPATH' ) || exit;
  * Only non-empty values are checked, and messages name the field by its label
  * as WooCommerce's own do. Shipping fields are skipped when the shopper is not
  * shipping to a different address, by WooCommerce's own rule. The same checks
- * run when a customer saves an address in My Account.
+ * run when a customer saves an address in My Account, unless the store uses
+ * the Block checkout (AddressScope).
  *
  * Sanitising and saving values is not done here (spec §4.1).
  */
@@ -125,7 +126,7 @@ final class CheckoutValidation implements Service {
 	 * @param mixed $address_type 'billing' or 'shipping'.
 	 */
 	public function validate_address( $user_id, $address_type ): void {
-		if ( ! in_array( $address_type, array( 'billing', 'shipping' ), true ) ) {
+		if ( ! in_array( $address_type, array( 'billing', 'shipping' ), true ) || ! ( new AddressScope( $this->domain->active_checkout_type() ) )->applies() ) {
 			return;
 		}
 

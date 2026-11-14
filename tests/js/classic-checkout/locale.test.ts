@@ -33,6 +33,7 @@ const postcode: OurField = {
 	required: true,
 	priority: 90,
 	classes: [ 'form-row-wide', 'address-field' ],
+	changed: [ 'label', 'placeholder', 'order', 'required', 'classes' ],
 };
 
 const locale: Locale = {
@@ -133,9 +134,22 @@ describe( 'effective', () => {
 		expect( effective( state, locale.GB.state, allOn ).required ).toBe(
 			true
 		);
-		expect( effective( state, locale.GB.state, allOff ).required ).toBe(
-			false
-		);
+		expect(
+			effective( state, locale.GB.state, allOff ).required
+		).toBeUndefined();
+	} );
+
+	it( 'leaves every property the store owner did not change, even with its switch on', () => {
+		const untouched = { ...postcode, changed: [] };
+
+		expect( effective( untouched, locale.IN.postcode, allOn ) ).toEqual( {
+			label: undefined,
+			placeholder: undefined,
+			priority: undefined,
+			classes: undefined,
+			required: undefined,
+		} );
+		expect( effective( untouched, {}, allOn ).label ).toBeUndefined();
 	} );
 
 	it( 'never requires a field the country hides', () => {
@@ -184,6 +198,7 @@ describe( 'applyLocaleOverrides', () => {
 					required: false,
 					priority: 100,
 					classes: [ 'form-row-wide', 'address-field' ],
+					changed: [ 'label', 'order', 'required' ],
 				},
 				billing_postcode: postcode,
 			},
@@ -298,5 +313,21 @@ describe( 'applyLocaleOverrides', () => {
 
 		expect( row ).toHaveClass( 'form-row-wide' );
 		expect( row ).not.toHaveClass( 'form-row-first' );
+	} );
+
+	it( 'leaves an untouched field as WooCommerce set it', () => {
+		const wrapper = form();
+		const untouched = data( allOn );
+		untouched.fields.billing_postcode = { ...postcode, changed: [] };
+
+		applyLocaleOverrides( wrapper, 'IN', untouched, params, mapStore() );
+
+		expect(
+			document.querySelector( '#billing_postcode_field label' )
+		).toHaveTextContent( 'PIN Code *' );
+		expect( document.getElementById( 'billing_postcode' ) ).toHaveAttribute(
+			'placeholder',
+			''
+		);
 	} );
 } );

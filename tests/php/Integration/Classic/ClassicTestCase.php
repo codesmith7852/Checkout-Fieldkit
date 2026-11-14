@@ -101,6 +101,24 @@ abstract class ClassicTestCase extends TestCase {
 	}
 
 	/**
+	 * Makes a new page with this content the store's Checkout page, which
+	 * decides the active checkout type.
+	 *
+	 * @param string $content Page content, for example '<!-- wp:woocommerce/checkout /-->'.
+	 */
+	protected function use_checkout_page( $content ) {
+		update_option(
+			'woocommerce_checkout_page_id',
+			self::factory()->post->create(
+				array(
+					'post_type'    => 'page',
+					'post_content' => $content,
+				)
+			)
+		);
+	}
+
+	/**
 	 * A custom field of a type, with a label from its name and, for choice
 	 * types, two options.
 	 *

@@ -121,12 +121,28 @@ export function createApi(
 				data: settings,
 			} ),
 		exportSetup: async ( include ) => {
-			const response = await fetcher< RawResponse >( {
-				path: `${ path( 'export' ) }?include=${ encodeURIComponent(
-					include.join( ',' )
-				) }`,
-				parse: false,
-			} );
+			let response: RawResponse;
+			try {
+				response = await fetcher< RawResponse >( {
+					path: `${ path( 'export' ) }?include=${ encodeURIComponent(
+						include.join( ',' )
+					) }`,
+					parse: false,
+				} );
+			} catch ( reason ) {
+				// Unparsed, api-fetch rejects with the Response itself: read its error body.
+				const failed = reason as Partial< Response > | null;
+				if ( failed && typeof failed.json === 'function' ) {
+					let body: unknown;
+					try {
+						body = await failed.json();
+					} catch {
+						throw reason;
+					}
+					throw body;
+				}
+				throw reason;
+			}
 			return {
 				fileName: fileNameFrom(
 					response.headers.get( 'Content-Disposition' )

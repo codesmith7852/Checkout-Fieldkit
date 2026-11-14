@@ -38,6 +38,21 @@ describe( 'createApi tools routes', () => {
 		} );
 	} );
 
+	it( 'rejects a failed export with the server’s error body', async () => {
+		const error = {
+			code: 'rest_invalid_param',
+			message: 'Invalid parameter(s): include',
+		};
+		const fetcher = jest.fn().mockRejectedValue( {
+			status: 400,
+			json: async () => error,
+		} );
+
+		await expect(
+			createApi( fetcher ).exportSetup( [ 'classic' ] )
+		).rejects.toEqual( error );
+	} );
+
 	it( 'posts documents to import/preview and import, and targets to reset', async () => {
 		const fetcher = jest.fn().mockResolvedValue( {} );
 		const api = createApi( fetcher );

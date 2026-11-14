@@ -249,6 +249,6 @@ class DefaultFieldsTest extends TestCase {
 		$label = ( new DefaultFields() )->get( 'classic', 'billing_postcode' )['label'];
 
 		$this->assertNotSame( 'Ours', $label );
-		$this->assertSame( 'Ours', WC()->countries->get_address_fields( 'GB', 'billing_' )['billing_postcode']['label'], 'Reading defaults does not leave a locale without our changes cached.' );
+		$this->assertSame( 'Ours', WC()->countries->get_country_locale()['GB']['postcode']['label'], 'Reading defaults does not leave a locale without our changes cached.' );
 	}
 }

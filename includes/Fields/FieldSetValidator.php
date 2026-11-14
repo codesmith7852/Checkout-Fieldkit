@@ -225,7 +225,9 @@ final class FieldSetValidator {
 			return $errors;
 		}
 
-		if ( empty( $errors ) && in_array( $name, $context['reserved'], true ) ) {
+		if ( empty( $errors ) && $this->defaults->is_woocommerce_property( $name ) ) {
+			$errors[] = self::problem( 'name', __( 'WooCommerce would use a value sent under this name to change the order or the customer\'s account, so a shopper could set it. Choose another name.', 'checkout-fieldkit' ) );
+		} elseif ( empty( $errors ) && in_array( $name, $context['reserved'], true ) ) {
 			$errors[] = self::problem( 'name', __( 'WooCommerce uses this name for one of its own fields. Choose another name.', 'checkout-fieldkit' ) );
 		}
 

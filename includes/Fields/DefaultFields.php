@@ -179,6 +179,32 @@ final class DefaultFields {
 	}
 
 	/**
+	 * Whether WooCommerce would hand a value posted under this name to a
+	 * setter of the order or the customer. The classic checkout calls
+	 * set_<name>() on WC_Order and WC_Customer for every posted field that has
+	 * one (WC_Checkout::create_order() and process_customer(), and
+	 * WC_Form_Handler::save_address() on My Account), so a custom field named
+	 * `role` or `status` would let a shopper set those. Custom fields may not
+	 * use such a name, on either checkout type.
+	 *
+	 * @param string $name Field name.
+	 * @return bool
+	 */
+	public function is_woocommerce_property( string $name ): bool {
+		if ( '' === $name ) {
+			return false;
+		}
+
+		foreach ( array( 'WC_Order', 'WC_Customer' ) as $class ) {
+			if ( class_exists( $class ) && method_exists( $class, 'set_' . $name ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * The built-in fields of a checkout type, by section. Cached per language,
 	 * except while WooCommerce is building its country locale (then the base
 	 * country's locale is not available yet).

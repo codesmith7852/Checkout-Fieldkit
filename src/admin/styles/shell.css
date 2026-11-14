@@ -15,10 +15,20 @@
 	padding-bottom: 48px;
 }
 
-.cfk-admin-screen #wpbody-content > .notice,
-.cfk-admin-screen #wpbody-content > .error,
-.cfk-admin-screen #wpbody-content > .updated {
-	margin: 12px var(--cfk-gutter, 32px) 0;
+/* WordPress moves admin notices to the header-end marker, above the app. */
+.cfk-admin-page > .notice,
+.cfk-admin-page > .error,
+.cfk-admin-page > .updated {
+	margin: 12px 32px 0;
+}
+
+@media (max-width: 782px) {
+
+	.cfk-admin-page > .notice,
+	.cfk-admin-page > .error,
+	.cfk-admin-page > .updated {
+		margin: 12px 16px 0;
+	}
 }
 
 .cfk-admin {

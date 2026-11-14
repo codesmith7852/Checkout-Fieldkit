@@ -1,0 +1,24 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "checkout-fieldkit/additional-fields",
+	"version": "0.1.0",
+	"title": "Checkout FieldKit: Additional fields",
+	"description": "Shows the custom fields of the Additional section, set up under WooCommerce → Checkout Fields.",
+	"category": "woocommerce",
+	"keywords": [ "checkout", "fields" ],
+	"textdomain": "checkout-fieldkit",
+	"parent": [ "woocommerce/checkout-fields-block" ],
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"reusable": false,
+		"inserter": false,
+		"lock": false
+	},
+	"attributes": {
+		"lock": {
+			"type": "object"
+		}
+	}
+}

@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "checkout-fieldkit/contact-fields",
+	"version": "0.1.0",
+	"title": "Checkout FieldKit: Contact fields",
+	"description": "Shows the custom fields of the Contact section, set up under WooCommerce → Checkout Fields.",
+	"category": "woocommerce",
+	"keywords": [ "checkout", "fields" ],
+	"textdomain": "checkout-fieldkit",
+	"parent": [ "woocommerce/checkout-contact-information-block" ],
+	"supports": {
+		"html": false,
+		"multiple": false,
+		"reusable": false,
+		"inserter": false,
+		"lock": false
+	},
+	"attributes": {
+		"lock": {
+			"type": "object",
+			"default": {
+				"remove": true,
+				"move": true
+			}
+		}
+	}
+}

@@ -17,4 +17,10 @@ module.exports = {
 	},
 	roots: [ '<rootDir>/src', '<rootDir>/tests/js' ],
 	setupFilesAfterEnv: [ '<rootDir>/tests/js/setup.ts' ],
+	// WooCommerce's block packages are globals at runtime (see
+	// src/types/woocommerce.d.ts); tests use the doubles in tests/js/support.
+	moduleNameMapper: {
+		'^@woocommerce/(settings|blocks-checkout|blocks-components)$':
+			'<rootDir>/tests/js/support/woocommerce/$1',
+	},
 };

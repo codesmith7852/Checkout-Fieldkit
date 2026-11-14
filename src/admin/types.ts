@@ -122,3 +122,39 @@ export interface AdminSettings {
 	};
 	[ key: string ]: unknown;
 }
+
+/** One problem from a 422 on POST /import/preview or /import. `target` is '' for the document itself. */
+export interface ImportError {
+	target: Resource | '';
+	section: string;
+	index: number | null;
+	key: string;
+	message: string;
+}
+
+/** What importing a file would do to one target. Names are field names, or switch keys for settings. */
+export interface ImportTargetPreview {
+	target: Resource;
+	action: 'replace' | 'keep';
+	added: string[];
+	removed: string[];
+	changed: string[];
+}
+
+/** The body of POST /import/preview. */
+export interface ImportPreview {
+	targets: ImportTargetPreview[];
+}
+
+/** The body of POST /import: what was imported, and each imported target as now in effect. */
+export type ImportResult = { imported: Resource[] } & Partial< StoredData >;
+
+/** The body of POST /reset: the target, and its value as now in effect. */
+export type ResetResult = { reset: Resource } & Partial< StoredData >;
+
+/** An export file, ready to download. */
+export interface ExportFile {
+	fileName: string;
+	/** The JSON exactly as the server sent it. */
+	contents: string;
+}

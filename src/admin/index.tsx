@@ -8,6 +8,7 @@ import type { AdminSettings } from './types';
 import './styles/tokens.css';
 import './styles/components.css';
 import './styles/shell.css';
+import './styles/fields.css';
 
 declare global {
 	interface Window {

@@ -244,33 +244,3 @@
 	box-shadow: var(--cfk-shadow-raised);
 	color: var(--cfk-text);
 }
-
-/* Placeholder field list (until the Fields screen arrives). */
-
-.cfk-placeholder-list {
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.cfk-placeholder-list li {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 4px 12px;
-	align-items: baseline;
-	margin: 0;
-	padding: 10px 20px;
-	border-bottom: 1px solid var(--cfk-divider);
-}
-
-.cfk-placeholder-list__label {
-	font-weight: 550;
-}
-
-.cfk-placeholder-list__name {
-	padding: 0;
-	background: none;
-	color: var(--cfk-text-muted);
-	font-family: var(--cfk-font-mono);
-	font-size: 12.5px;
-}

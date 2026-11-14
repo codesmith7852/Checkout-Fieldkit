@@ -59,7 +59,7 @@ Uploads and WooCommerce logs written during tests go to `<system temp>/cfk-tests
 | `composer test:multisite` | Same tests on a multisite network, including the `ms-required` group |
 | `composer lint` / `composer lint:fix` | PHPCS: WordPress Coding Standards and PHP 7.4 compatibility |
 | `npm test` | Jest with Testing Library (`npm test -- tests/js/admin` for one folder) |
-| `npm run build` / `npm start` | Build the admin scripts into `build/` once / on every change |
+| `npm run build` / `npm start` | Build the admin and checkout block scripts into `build/` once / on every change |
 | `npm run lint` | ESLint, stylelint and the TypeScript type check |
 | `npm run zip` | Build, then pack `dist/checkout-fieldkit.zip` without anything listed in `.distignore` |
 | `npm run plugin-check` | `npm run zip`, then Plugin Check on the zip's contents |
@@ -77,11 +77,17 @@ Uploads and WooCommerce logs written during tests go to `<system temp>/cfk-tests
   - `includes/Tools/ImportExport.php`: export document, import validation, preview and import.
 - `includes/Orders/`: custom field values on orders, for both checkout types (no hooks of their own unless noted):
   - `ValueSanitizer::sanitize( $field, $raw, $checkout_type )`: the string to store for a submitted value (spec §4.1); `""` means store nothing.
+  - `ValueValidator::problem( $field, $raw, $checkout_type, $country )` / `problems( $fields, $values, … )`: what is wrong with a submitted value (required, the type's own check, the chosen validations, options), as a message naming the field; `""` when fine. `src/checkout/validation.ts` mirrors it in the browser.
   - `FieldValues`: the reusable display API. `meta_key( $name, $checkout_type )` says where a value lives (classic `billing_*`/`shipping_*` → `_<name>`, saved by WooCommerce; everything else `<name>`), `stored( $order, $field, $checkout_type )` reads it, `format( $field, $value, $checkout_type, FieldValues::HTML|PLAIN, $order )` shows it (option labels, `Yes`, line breaks, escaped for HTML), `entries( $order, $fields, $checkout_type, $format )` gives label/value rows for a list of fields, and `checkout_type_of( $order )` tells which checkout placed an order. Create it with `new FieldValues( Plugin::instance()->domain()->field_types() )`.
   - `ValueDisplay` (service): shows one field set's values in emails, on the thank-you and My Account order pages and on the admin order screen (spec §4.2). Registered for the classic field set.
 - `includes/Classic/OrderValueSaver.php` (service): saves classic checkout values on the order and customer.
+- `includes/Block/`: the Block checkout. `AddressFields` and `BuiltInAddressFields` (Address section, WooCommerce's API); for Contact and Additional, our own inner blocks:
+  - `InnerBlockFields`: the enabled custom fields of Contact and Additional, and the data the browser gets (`getSetting( 'checkout-fieldkit_data' )`).
+  - `CheckoutBlocks` (service): registers `CheckoutIntegration` (our scripts) with the Checkout block, the block types `checkout-fieldkit/contact-fields` and `checkout-fieldkit/additional-fields`, and adds the Additional block to rendered Checkout pages that lack it.
+  - `OrderValues` (service): the Store API extension `checkout-fieldkit` (schema, validation, saving as order meta `<name>`).
+  - `OrderValueDisplay` (service): `Orders\ValueDisplay` for the Block field set.
 - Any filter we add to WooCommerce's checkout field or country locale hooks must return its input unchanged while `DefaultFields::is_computing()` is true, so our changes never end up in the defaults and reading a field set inside the filter cannot recurse.
-- `src/`: TypeScript and CSS for the admin, built to `build/` by `@wordpress/scripts` (entries in `webpack.config.js`).
+- `src/`: TypeScript and CSS for the admin (`src/admin/`) and the checkout inner blocks (`src/checkout/`: `frontend.tsx`, `editor.tsx`, block.json files), built to `build/` by `@wordpress/scripts` with WooCommerce's dependency extraction, so `@woocommerce/*` imports become WooCommerce's script globals (entries in `webpack.config.js`; types in `src/types/woocommerce.d.ts`). Jest maps those packages to the doubles in `tests/js/support/woocommerce/`.
 - `tests/php/`: PHPUnit tests; extend `CheckoutFieldKit\Tests\TestCase`, which gives you `create_order()`, `create_product()`, `enable_hpos()`, `disable_hpos()`, `log_in_as()` and the `data_order_storage` provider for running a test with HPOS on and off.
 - `tests/js/`: Jest tests, mirroring `src/`.
 

@@ -7,6 +7,8 @@
 
 namespace CheckoutFieldKit;
 
+use CheckoutFieldKit\Environment\ActiveCheckoutType;
+use CheckoutFieldKit\Environment\BlockSupport;
 use CheckoutFieldKit\Fields\DefaultFields;
 use CheckoutFieldKit\Fields\EssentialFields;
 use CheckoutFieldKit\Fields\FieldNormalizer;
@@ -161,6 +163,34 @@ final class Domain {
 			'import_export',
 			function () {
 				return new ImportExport( $this );
+			}
+		);
+	}
+
+	/**
+	 * Which checkout type the store's Checkout page uses (spec §7).
+	 *
+	 * @return ActiveCheckoutType
+	 */
+	public function active_checkout_type(): ActiveCheckoutType {
+		return $this->once(
+			'active_checkout_type',
+			static function () {
+				return new ActiveCheckoutType();
+			}
+		);
+	}
+
+	/**
+	 * Whether the Block checkout features can run, and why not (spec §5).
+	 *
+	 * @return BlockSupport
+	 */
+	public function block_support(): BlockSupport {
+		return $this->once(
+			'block_support',
+			static function () {
+				return BlockSupport::from_environment();
 			}
 		);
 	}

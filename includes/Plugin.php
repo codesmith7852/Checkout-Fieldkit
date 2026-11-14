@@ -135,6 +135,7 @@ final class Plugin {
 		return array(
 			new Compatibility( PLUGIN_FILE ),
 			new Rest\Routes( $this->domain() ),
+			new Admin\Page( PLUGIN_FILE ),
 		);
 	}
 }
